@@ -3,6 +3,42 @@
     xmlns="http://chs.harvard.edu/xmlns/cite"
     xmlns:cite="http://chs.harvard.edu/xmlns/cite">
     <collectionService>
+        
+        <citeCollection
+            canonicalId="URN"
+            class="5000541"
+            name="DMK">
+            <namespaceMapping
+                abbr="hmt"
+                fullValue="http://www.homermultitext.org/datans"/>
+            <citeProperty
+                label="URN"
+                name="URN"
+                type="urn"/>
+            <!-- maps to Google String -->
+            <citeProperty
+                label="URN of text commented on"
+                name="URN-commentedOn"
+                type="urn"/>
+            <citeProperty
+                label="Author"
+                name="Author"
+                type="string"/>
+            <citeProperty
+                label="Comment"
+                name="Comment"
+                type="markdown"/>
+            <!-- maps to Google String -->
+            <citeProperty
+                label="Date"
+                name="Date"
+                type="datetime"/>
+        </citeCollection>
+        
+        
+        
+        
+        
         <citeCollection
             canonicalId="URN"
             class="5000521"
