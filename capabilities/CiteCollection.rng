@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+    xmlns="http://relaxng.org/ns/structure/1.0"
+    xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+    xmlns:cite="http://chs.harvard.edu/xmlns/cite/capabilities">
+    <start>
+        <element
+            name="cite:collectionService">
+            <oneOrMore>
+                <element
+                    name="cite:citeCollection">
+                    <attribute
+                        name="canonicalId"/>
+                    <attribute
+                        name="class"/>
+                    <attribute
+                        name="name"/>
+                    <attribute name="description"/>
+                    <optional>
+                        <attribute
+                            name="groupProperty"/>
+                    </optional>
+                    <element
+                        name="cite:namespaceMapping">
+                        <attribute
+                            name="abbr"/>
+                        <attribute
+                            name="fullValue"/>
+                        <empty/>
+                    </element>
+                    <optional>
+                        <element
+                            name="cite:orderedBy">
+                            <attribute
+                                name="property"/>
+                            <empty/>
+                        </element>
+                    </optional>
+                    <oneOrMore>
+                        <element
+                            name="cite:citeProperty">
+                            <attribute
+                                name="name"/>
+                            <attribute
+                                name="label"/>
+                            <attribute
+                                name="type">
+                                <choice>
+                                    <value>string</value>
+                                    <value>number</value>
+                                    <value>boolean</value>
+                                    <value>datetime</value>
+                                    <!-- The following will map to String or Text in many back-end systems -->
+                                    <value>citeurn</value>
+                                    <value>ctsurn</value>
+                                    <value>citeimg</value>
+                                    <value>markdown</value>
+                                </choice>
+                            </attribute>
+                            <optional>
+                                <element name="cite:valueList">
+                                <oneOrMore>
+                                <element name="cite:value"><text/></element>
+                                </oneOrMore>
+                                </element>
+                            </optional>
+                            
+                        </element>
+                    </oneOrMore>
+                </element>
+            </oneOrMore>
+        </element>
+    </start>
+</grammar>
