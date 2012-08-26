@@ -6,7 +6,8 @@
         <citeCollection
             canonicalId="URN"
             class="5000541"
-            name="DMK">
+            name="DMK"
+            description="The Drei Männer Kommentar to the Iliad">
             <namespaceMapping
                 abbr="hmt"
                 fullValue="http://www.homermultitext.org/datans"/>
@@ -36,7 +37,8 @@
         <citeCollection
             canonicalId="URN"
             class="5000521"
-            name="hmtWorkLog">
+            name="hmtWorkLog"
+            description="Homer Multitext project at Holy Cross:  work log">
             <namespaceMapping
                 abbr="hmt"
                 fullValue="http://www.homermultitext.org/datans"/>
@@ -66,7 +68,8 @@
         <citeCollection
             canonicalId="URN"
             class="5000530"
-            name="paleography">
+            name="paleography"
+            description="Open Paleography project:  Greek paleography">
             <citeProperty
                 label="URN"
                 name="URN"
