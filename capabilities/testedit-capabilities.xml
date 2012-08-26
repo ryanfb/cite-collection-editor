@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GetCapabilities
-    xmlns="http://chs.harvard.edu/xmlns/cite"
-    xmlns:cite="http://chs.harvard.edu/xmlns/cite">
-    <collectionService>
+<?xml-model href="CiteCollection.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+
+<collectionService xmlns="http://chs.harvard.edu/xmlns/cite/capabilities">
         <citeCollection
             canonicalId="URN"
-            class="5000541"
+            class="1tFhVfSS_u5zokh3EcIhjEwPEKjTfAwnHkEMPQD8"
             name="DMK"
             description="The Drei Männer Kommentar to the Iliad">
             <namespaceMapping
@@ -14,12 +13,12 @@
             <citeProperty
                 label="URN"
                 name="URN"
-                type="urn"/>
+                type="citeurn"/>
             <!-- maps to Google String -->
             <citeProperty
                 label="URN of text commented on"
                 name="URN-commentedOn"
-                type="urn"/>
+                type="citeurn"/>
             <citeProperty
                 label="Author"
                 name="Author"
@@ -36,7 +35,7 @@
         </citeCollection>
         <citeCollection
             canonicalId="URN"
-            class="5000521"
+            class="1iElXI_3c0owUsTBw5Ao0xv8FZ7nf6MsHbwX_B9E"
             name="hmtWorkLog"
             description="Homer Multitext project at Holy Cross:  work log">
             <namespaceMapping
@@ -45,12 +44,12 @@
             <citeProperty
                 label="URN"
                 name="URN"
-                type="urn"/>
+                type="citeurn"/>
             <!-- maps to Google String -->
             <citeProperty
                 label="URN of object commented on"
                 name="URN-commentedOn"
-                type="urn"/>
+                type="citeurn"/>
             <citeProperty
                 label="Author"
                 name="Author"
@@ -67,9 +66,12 @@
         </citeCollection>
         <citeCollection
             canonicalId="URN"
-            class="5000530"
+            class="1Yt3tSWh2C5-t9y5-3I9SauZhljUgmmzoPa_6xQI"
             name="paleography"
             description="Open Paleography project:  Greek paleography">
+            <namespaceMapping
+                abbr="hmt"
+                fullValue="http://www.homermultitext.org/datans"/>
             <citeProperty
                 label="URN"
                 name="URN"
@@ -119,4 +121,3 @@
                  type="string"></citeProperty>
         </citeCollection>
     </collectionService>
-</GetCapabilities>
