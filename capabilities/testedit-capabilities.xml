@@ -3,7 +3,6 @@
     xmlns="http://chs.harvard.edu/xmlns/cite"
     xmlns:cite="http://chs.harvard.edu/xmlns/cite">
     <collectionService>
-        
         <citeCollection
             canonicalId="URN"
             class="5000541"
@@ -34,11 +33,6 @@
                 name="Date"
                 type="datetime"/>
         </citeCollection>
-        
-        
-        
-        
-        
         <citeCollection
             canonicalId="URN"
             class="5000521"
@@ -69,13 +63,57 @@
                 name="Date"
                 type="datetime"/>
         </citeCollection>
-        
-        
-        
-        <citeCollection name="paleography"
-             canonicalId="URN"
-             class="5000530">
-        <!-- add contents after updating table back end -->
+        <citeCollection
+            canonicalId="URN"
+            class="5000530"
+            name="paleography">
+            <citeProperty
+                label="URN"
+                name="URN"
+                type="citeurn"/>
+            <citeProperty
+                label="Image citation"
+                name="ImageUrn"
+                type="citeimg"/>
+            <citeProperty
+                label="Description"
+                name="Description"
+                type="string"/>
+            <citeProperty
+                label="Type of feature"
+                name="RepertoryType"
+                type="string">
+                <valueList>
+                    <value>letter</value>
+                    <value>abbreviation</value>
+                    <value>ligature</value>
+                    <value>punctuation</value>
+                </valueList>
+            </citeProperty>
+          <citeProperty name="PhysicalArtifact"
+               label="Physical artifact"
+                 type="citeurn"/>
+            <citeProperty
+                label="Visual class"
+                name="VisualClass"
+                type="string">
+                <valueList>
+                    <value>Suspension</value>
+                    <value>Horizontal</value>
+                    <value>Vertical</value>
+                    <value>Slanting</value>
+                    <value>Sinusoid</value>
+                    <value>Superscription</value>
+                    <value>Discontinuous</value>
+                    <value>Monograms</value>
+                    <value>Symbols</value>
+                    <value>Brachigraphy</value>
+                </valueList>
+            </citeProperty>
+            
+            <citeProperty name="Contributor"
+                 label="Contributor"
+                 type="string"></citeProperty>
         </citeCollection>
     </collectionService>
 </GetCapabilities>
