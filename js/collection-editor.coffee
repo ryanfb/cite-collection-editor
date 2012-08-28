@@ -1,9 +1,18 @@
+build_input_for_valuelist = (valuelist) ->
+  select = $('<select>')
+  values = $(valuelist).find('value')
+  select.append $('<option>').append($(value).text()) for value in values
+  return select
+
 build_input_for_property = (property) ->
   input = switch $(property).attr('type')
     when 'markdown'
       $('<textarea>').attr('style','width:100%;height:20em')
     when 'string'
-      $('<input>').attr('style','width:100%')
+      if $(property).find('valueList').length > 0
+        build_input_for_valuelist $(property).find('valueList')[0]
+      else
+        $('<input>').attr('style','width:100%')
     when 'citeurn', 'citeimg'
       $('<input>').attr('style','width:100%')
     when 'datetime'
