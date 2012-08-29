@@ -1,13 +1,3 @@
-google_oauth_parameters_for_fusion_tables =
-  response_type: 'token'
-  client_id: '891199912324.apps.googleusercontent.com'
-  redirect_uri: 'http://dl.dropbox.com/u/360471/cite-collection-editor/oauthcallback'
-  scope: 'https://www.googleapis.com/auth/fusiontables.readonly'
-  approval_prompt: 'auto'
-
-google_oauth_url =
-  "https://accounts.google.com/o/oauth2/auth?#{$.param(google_oauth_parameters_for_fusion_tables)}"
-
 build_input_for_valuelist = (valuelist) ->
   select = $('<select>')
   values = $(valuelist).find('value')
@@ -41,7 +31,6 @@ build_collection_form = (collection) ->
   form = $('<form>').attr('id','collection_form')
   properties = $(collection).find('citeProperty')
   add_property_to_form(property,form) for property in properties
-  form.append $('<a>').attr('href',google_oauth_url).append('OAuth Test')
   $('.container').append form
 
 $(document).ready ->
