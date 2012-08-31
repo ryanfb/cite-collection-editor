@@ -87,7 +87,7 @@ set_access_token_cookie = (params) ->
         access_token_expires.setTime(access_token_expires.getTime() + params['expires_in']*1000)
         access_token_cookie = "access_token=#{params['access_token']}; "
         access_token_cookie += "expires=#{access_token_expires.toGMTString()}; "
-        access_token_cookie += "path=/"
+        access_token_cookie += "path=#{window.location.pathname.substring(0,window.location.pathname.lastIndexOf('/')+1)}"
         console.log 'Wrote access token cookie: ' + access_token_cookie
         document.cookie = access_token_cookie
 
