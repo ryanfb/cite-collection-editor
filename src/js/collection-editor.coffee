@@ -1,7 +1,7 @@
 google_oauth_parameters_for_fusion_tables =
   response_type: 'token'
   client_id: '891199912324.apps.googleusercontent.com'
-  redirect_uri: window.location.href
+  redirect_uri: window.location.href.replace("#{location.hash}",'')
   scope: 'https://www.googleapis.com/auth/fusiontables'
   approval_prompt: 'auto'
 
