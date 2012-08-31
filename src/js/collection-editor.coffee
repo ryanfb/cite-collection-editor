@@ -42,9 +42,6 @@ build_collection_form = (collection) ->
   properties = $(collection).find('citeProperty')
   add_property_to_form(property,form) for property in properties
 
-  form.append $('<br>')
-  form.append $('<a>').attr('href',google_oauth_url).append('OAuth Test')
-
   # test table access
   if get_cookie 'access_token'
     $.ajax "https://www.googleapis.com/fusiontables/v1/tables/#{$(collection).attr('class')}?access_token=#{get_cookie 'access_token'}",
@@ -53,6 +50,7 @@ build_collection_form = (collection) ->
       crossDomain: true
       error: (jqXHR, textStatus, errorThrown) ->
         console.log "AJAX Error: #{textStatus}"
+        $('h1').after $('<div>').attr('class','alert alert-error').attr('id','collection_access_error').append('You do not have permission to access this collection.')
       success: (data) ->
         console.log data
 
@@ -90,6 +88,7 @@ set_access_token_cookie = (params) ->
         access_token_cookie += "path=#{window.location.pathname.substring(0,window.location.pathname.lastIndexOf('/')+1)}"
         console.log 'Wrote access token cookie: ' + access_token_cookie
         document.cookie = access_token_cookie
+        $('#oauth_access_warning').remove()
 
 $(document).ready ->
   set_access_token_cookie parse_query_string(location.hash.substring(1))
@@ -97,6 +96,9 @@ $(document).ready ->
   history.replaceState(null,'',window.location.href.replace("#{location.hash}",''))
   if get_cookie 'access_token'
     console.log 'Read access token cookie: ' + get_cookie 'access_token'
+  else
+    $('h1').after $('<div>').attr('class','alert alert-warning').attr('id','oauth_access_warning').append('You have not authorized this application to access your Google Fusion Tables. ')
+    $('#oauth_access_warning').append $('<a>').attr('href',google_oauth_url).append('Click here to authorize.')
   $.ajax 'capabilities/testedit-capabilities.xml',
     type: 'GET'
     dataType: 'xml'
@@ -112,6 +114,7 @@ $(document).ready ->
       $('#collection_select').chosen()
       $('#collection_select').bind 'change', (event) =>
         $('#collection_form').remove()
+        $('#collection_access_error').remove()
         selected = $('#collection_select option:selected')[0]
         selected_collection = $(data).find("citeCollection[class=#{$(selected).attr('value')}]")[0]
         build_collection_form selected_collection
