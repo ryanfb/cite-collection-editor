@@ -76,7 +76,9 @@ build_collection_form = (collection) ->
     disable_collection_form()
 
 set_author_name = ->
-  if get_cookie 'access_token'
+  if get_cookie 'author_name'
+    $('#Author').attr('value',get_cookie 'author_name')
+  else if get_cookie 'access_token'
     $.ajax "https://www.googleapis.com/oauth2/v1/userinfo?access_token=#{get_cookie 'access_token'}",
       type: 'GET'
       dataType: 'json'
@@ -85,6 +87,9 @@ set_author_name = ->
         console.log "AJAX Error: #{textStatus}"
         # $('h1').after $('<div>').attr('class','alert alert-warning').append('Error retrieving profile info.')
       success: (data) ->
+        author_name_cookie = "author_name=#{data['name']}; "
+        author_name_cookie += "path=#{window.location.pathname.substring(0,window.location.pathname.lastIndexOf('/')+1)}"
+        document.cookie = author_name_cookie
         $('#Author').attr('value',data['name'])
 
 parse_query_string = (query_string) ->
