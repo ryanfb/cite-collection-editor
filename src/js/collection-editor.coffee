@@ -8,6 +8,12 @@ google_oauth_parameters_for_fusion_tables =
 google_oauth_url =
   "https://accounts.google.com/o/oauth2/auth?#{$.param(google_oauth_parameters_for_fusion_tables)}"
 
+cite_urn = (namespace, collection, row, version) ->
+  urn = "urn:cite:#{namespace}:#{collection}.#{row}"
+  if arguments.length == 4
+    urn += ".#{version}"
+  return urn
+
 disable_collection_form = ->
   $('#collection_form').children().prop('disabled',true)
 
@@ -27,7 +33,13 @@ build_input_for_property = (property) ->
       else
         $('<input>').attr('style','width:100%')
     when 'citeurn', 'citeimg'
-      $('<input>').attr('style','width:100%')
+      # for the special case of the "URN" field, we want to construct the value
+      if $(property).attr('name') == 'URN'
+        namespace = $(property).parent().find('namespaceMapping').attr('abbr')
+        collection = $(property).parent().attr('name')
+        $('<input>').attr('style','width:100%').prop('disabled',true).attr('value',cite_urn(namespace,collection,1))
+      else
+        $('<input>').attr('style','width:100%')
     when 'datetime'
       $('<input>').attr('type','date')
     else
