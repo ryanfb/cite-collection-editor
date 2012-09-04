@@ -8,6 +8,9 @@ google_oauth_parameters_for_fusion_tables =
 google_oauth_url =
   "https://accounts.google.com/o/oauth2/auth?#{$.param(google_oauth_parameters_for_fusion_tables)}"
 
+disable_collection_form = ->
+  $('#collection_form').children().prop('disabled',true)
+
 build_input_for_valuelist = (valuelist) ->
   select = $('<select>')
   values = $(valuelist).find('value')
@@ -51,10 +54,13 @@ build_collection_form = (collection) ->
       error: (jqXHR, textStatus, errorThrown) ->
         console.log "AJAX Error: #{textStatus}"
         $('h1').after $('<div>').attr('class','alert alert-error').attr('id','collection_access_error').append('You do not have permission to access this collection.')
+        disable_collection_form()
       success: (data) ->
         console.log data
 
   $('.container').append form
+  if $('.alert').length > 0
+    disable_collection_form()
 
 parse_query_string = (query_string) ->
   params = {}
