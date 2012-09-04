@@ -2,7 +2,7 @@ google_oauth_parameters_for_fusion_tables =
   response_type: 'token'
   client_id: '891199912324.apps.googleusercontent.com'
   redirect_uri: window.location.href.replace("#{location.hash}",'')
-  scope: 'https://www.googleapis.com/auth/fusiontables'
+  scope: 'https://www.googleapis.com/auth/fusiontables https://www.googleapis.com/auth/userinfo.profile'
   approval_prompt: 'auto'
 
 google_oauth_url =
@@ -71,8 +71,20 @@ build_collection_form = (collection) ->
         console.log data
 
   $('.container').append form
+  set_author_name()
   if $('.alert').length > 0
     disable_collection_form()
+
+set_author_name = ->
+  $.ajax "https://www.googleapis.com/oauth2/v1/userinfo?access_token=#{get_cookie 'access_token'}",
+    type: 'GET'
+    dataType: 'json'
+    crossDomain: true
+    error: (jqXHR, textStatus, errorThrown) ->
+      console.log "AJAX Error: #{textStatus}"
+      # $('h1').after $('<div>').attr('class','alert alert-warning').append('Error retrieving profile info.')
+    success: (data) ->
+      $('#Author').attr('value',data['name'])
 
 parse_query_string = (query_string) ->
   params = {}
