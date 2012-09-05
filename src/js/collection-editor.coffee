@@ -52,10 +52,45 @@ add_property_to_form = (property, form) ->
   form.append $('<label>').attr('for',$(property).attr('name')).append($(property).attr('label') + ':')
   form.append build_input_for_property property
 
+save_collection_form = ->
+  collection = $('#collection_select').val()
+  localStorage[collection] = true
+  for child in $('#collection_form').children()
+    if $(child).attr('id')
+      localStorage["#{collection}:#{$(child).attr('id')}"] = $(child).val()
+
+load_collection_form = ->
+  collection = $('#collection_select').val()
+  if localStorage[collection]
+    for child in $('#collection_form').children()
+      if $(child).attr('id')
+        $(child).val(localStorage["#{collection}:#{$(child).attr('id')}"])
+
+clear_collection_form = ->
+  collection = $('#collection_select').val()
+  localStorage.removeItem(collection)
+  for child in $('#collection_form').children()
+    if $(child).attr('id')
+      localStorage.removeItem("#{collection}:#{$(child).attr('id')}")
+  $('#collection_select').change()
+
 build_collection_form = (collection) ->
   form = $('<form>').attr('id','collection_form')
   properties = $(collection).find('citeProperty')
   add_property_to_form(property,form) for property in properties
+
+  save_button = $('<input>').attr('type','button').attr('value','Save').attr('class','btn')
+  save_button.bind 'click', (event) =>
+    save_collection_form()
+  clear_button = $('<input>').attr('type','button').attr('value','Clear').attr('class','btn btn-danger')
+  clear_button.bind 'click', (event) =>
+    if confirm('Are you sure you wish to clear the form? This action cannot be undone.')
+      clear_collection_form()
+
+  form.append $('<br>')
+  form.append save_button
+  form.append '&nbsp;&nbsp;'
+  form.append clear_button
 
   # test table access
   if get_cookie 'access_token'
@@ -152,4 +187,5 @@ $(document).ready ->
         selected = $('#collection_select option:selected')[0]
         selected_collection = $(data).find("citeCollection[class=#{$(selected).attr('value')}]")[0]
         build_collection_form selected_collection
+        load_collection_form()
       $('#collection_select').change()
