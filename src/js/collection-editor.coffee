@@ -107,8 +107,6 @@ build_collection_form = (collection) ->
 
   $('.container').append form
   set_author_name()
-  if $('.alert').length > 0
-    disable_collection_form()
 
 set_author_name = ->
   if get_cookie 'author_name'
@@ -165,9 +163,7 @@ $(document).ready ->
   set_access_token_cookie parse_query_string(location.hash.substring(1))
   # strip the hash from the URL, as Google will also reject any further queries if it's present
   history.replaceState(null,'',window.location.href.replace("#{location.hash}",''))
-  unless get_cookie 'access_token'
-    $('h1').after $('<div>').attr('class','alert alert-warning').attr('id','oauth_access_warning').append('You have not authorized this application to access your Google Fusion Tables. ')
-    $('#oauth_access_warning').append $('<a>').attr('href',google_oauth_url).append('Click here to authorize.')
+
   $.ajax 'capabilities/testedit-capabilities.xml',
     type: 'GET'
     dataType: 'xml'
@@ -183,9 +179,13 @@ $(document).ready ->
       $('#collection_select').chosen()
       $('#collection_select').bind 'change', (event) =>
         $('#collection_form').remove()
-        $('#collection_access_error').remove()
+        $('.alert').remove()
         selected = $('#collection_select option:selected')[0]
         selected_collection = $(data).find("citeCollection[class=#{$(selected).attr('value')}]")[0]
         build_collection_form selected_collection
         load_collection_form()
+        unless get_cookie 'access_token'
+          $('h1').after $('<div>').attr('class','alert alert-warning').attr('id','oauth_access_warning').append('You have not authorized this application to access your Google Fusion Tables. ')
+          $('#oauth_access_warning').append $('<a>').attr('href',google_oauth_url).append('Click here to authorize.')
+          disable_collection_form()
       $('#collection_select').change()
