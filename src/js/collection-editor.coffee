@@ -87,9 +87,7 @@ set_author_name = ->
         console.log "AJAX Error: #{textStatus}"
         # $('h1').after $('<div>').attr('class','alert alert-warning').append('Error retrieving profile info.')
       success: (data) ->
-        author_name_cookie = "author_name=#{data['name']}; "
-        author_name_cookie += "path=#{window.location.pathname.substring(0,window.location.pathname.lastIndexOf('/')+1)}"
-        document.cookie = author_name_cookie
+        set_cookie('author_name',data['name'],3600)
         $('#Author').attr('value',data['name'])
 
 parse_query_string = (query_string) ->
@@ -100,10 +98,19 @@ parse_query_string = (query_string) ->
       params[decodeURIComponent(m[1])] = decodeURIComponent(m[2])
   return params
 
+set_cookie = (key, value, expires_in) ->
+  cookie_expires = new Date
+  cookie_expires.setTime(cookie_expires.getTime() + expires_in * 1000)
+  cookie = "#{key}=#{value}; "
+  cookie += "expires=#{cookie_expires.toGMTString()}; "
+  cookie += "path=#{window.location.pathname.substring(0,window.location.pathname.lastIndexOf('/')+1)}"
+  document.cookie = cookie
+
 get_cookie = (key) ->
-  key = key + "="
+  key += "="
   for cookie_fragment in document.cookie.split(';')
-    return cookie_fragment.replace(/^\s+/, '').substring(key.length, cookie_fragment.length) if cookie_fragment.indexOf(key) == 0
+    cookie_fragment = cookie_fragment.replace(/^\s+/, '')
+    return cookie_fragment.substring(key.length, cookie_fragment.length) if cookie_fragment.indexOf(key) == 0
   return null
 
 set_access_token_cookie = (params) ->
@@ -116,23 +123,14 @@ set_access_token_cookie = (params) ->
       error: (jqXHR, textStatus, errorThrown) ->
         console.log "Access Token Validation Error: #{textStatus}"
       success: (data) ->
-        console.log data
-        access_token_expires = new Date
-        access_token_expires.setTime(access_token_expires.getTime() + params['expires_in']*1000)
-        access_token_cookie = "access_token=#{params['access_token']}; "
-        access_token_cookie += "expires=#{access_token_expires.toGMTString()}; "
-        access_token_cookie += "path=#{window.location.pathname.substring(0,window.location.pathname.lastIndexOf('/')+1)}"
-        console.log 'Wrote access token cookie: ' + access_token_cookie
-        document.cookie = access_token_cookie
+        set_cookie('access_token',params['access_token'],params['expires_in'])
         $('#oauth_access_warning').remove()
 
 $(document).ready ->
   set_access_token_cookie parse_query_string(location.hash.substring(1))
   # strip the hash from the URL, as Google will also reject any further queries if it's present
   history.replaceState(null,'',window.location.href.replace("#{location.hash}",''))
-  if get_cookie 'access_token'
-    console.log 'Read access token cookie: ' + get_cookie 'access_token'
-  else
+  unless get_cookie 'access_token'
     $('h1').after $('<div>').attr('class','alert alert-warning').attr('id','oauth_access_warning').append('You have not authorized this application to access your Google Fusion Tables. ')
     $('#oauth_access_warning').append $('<a>').attr('href',google_oauth_url).append('Click here to authorize.')
   $.ajax 'capabilities/testedit-capabilities.xml',
