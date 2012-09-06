@@ -134,6 +134,18 @@ parse_query_string = (query_string) ->
       params[decodeURIComponent(m[1])] = decodeURIComponent(m[2])
   return params
 
+filter_url_params = (params) ->
+  rewritten_params = []
+  for key, value of params
+    unless _.include(['access_token','expires_in','token_type'],key)
+      rewritten_params.push "#{key}=#{value}"
+  if rewritten_params.length > 0
+    hash_string = "##{rewritten_params.join('&')}"
+  else
+    hash_string = ''
+  history.replaceState(null,'',window.location.href.replace("#{location.hash}",hash_string))
+  return params
+
 set_cookie = (key, value, expires_in) ->
   cookie_expires = new Date
   cookie_expires.setTime(cookie_expires.getTime() + expires_in * 1000)
@@ -163,10 +175,8 @@ set_access_token_cookie = (params) ->
         $('#oauth_access_warning').remove()
 
 $(document).ready ->
-  set_access_token_cookie parse_query_string(location.hash.substring(1))
-  # strip the hash from the URL, as Google will also reject any further queries if it's present
-  history.replaceState(null,'',window.location.href.replace("#{location.hash}",''))
-
+  set_access_token_cookie filter_url_params(parse_query_string(location.hash.substring(1)))
+  
   $.ajax 'capabilities/testedit-capabilities.xml',
     type: 'GET'
     dataType: 'xml'
