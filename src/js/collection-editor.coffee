@@ -59,7 +59,8 @@ save_collection_form = ->
     if $(child).attr('id')
       localStorage["#{collection}:#{$(child).attr('id')}"] = $(child).val()
   $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','save_success').append('Saved.')
-  $('#save_success').fadeOut(1800)
+  $('#save_success').fadeOut 1800, ->
+    $(this).remove()
 
 load_collection_form = ->
   collection = $('#collection_select').val()
