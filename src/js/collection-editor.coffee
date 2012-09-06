@@ -41,7 +41,7 @@ build_input_for_property = (property) ->
       else
         $('<input>').attr('style','width:100%')
     when 'datetime'
-      $('<input>').attr('type','date')
+      $('<input>').attr('style','width:50%').attr('type','datetime').attr('value',(new Date).toLocaleString()).prop('disabled',true)
     else
       console.log 'Error: unknown type'
       $('<input>')
@@ -56,7 +56,7 @@ save_collection_form = ->
   collection = $('#collection_select').val()
   localStorage[collection] = true
   for child in $('#collection_form').children()
-    if $(child).attr('id')
+    if $(child).attr('id') && !$(child).prop('disabled')
       localStorage["#{collection}:#{$(child).attr('id')}"] = $(child).val()
   $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','save_success').append('Saved.')
   $('#save_success').fadeOut 1800, ->
@@ -66,7 +66,7 @@ load_collection_form = ->
   collection = $('#collection_select').val()
   if localStorage[collection]
     for child in $('#collection_form').children()
-      if $(child).attr('id')
+      if $(child).attr('id') && localStorage["#{collection}:#{$(child).attr('id')}"]?
         $(child).val(localStorage["#{collection}:#{$(child).attr('id')}"])
 
 clear_collection_form = ->
