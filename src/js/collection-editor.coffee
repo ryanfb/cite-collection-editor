@@ -94,7 +94,7 @@ save_collection_form = ->
   collection = $('#collection_select').val()
   localStorage[collection] = true
   for child in $('#collection_form').children()
-    if $(child).attr('id') && !$(child).prop('disabled')
+    if $(child).attr('id') && !$(child).prop('disabled') && ($(child).attr('type') != 'hidden')
       localStorage["#{collection}:#{$(child).attr('id')}"] = $(child).val()
   $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','save_success').append('Saved.')
   $('#save_success').fadeOut 1800, ->
