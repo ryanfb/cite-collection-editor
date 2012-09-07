@@ -25,6 +25,9 @@ build_input_for_valuelist = (valuelist) ->
   select.append $('<option>').append($(value).text()) for value in values
   return select
 
+update_timestamp_inputs = ->
+  $('#Date').attr('value',(new Date).toISOString())
+
 build_input_for_property = (property) ->
   input = switch $(property).attr('type')
     when 'markdown'
@@ -41,7 +44,7 @@ build_input_for_property = (property) ->
       else
         $('<input>').attr('style','width:100%')
     when 'datetime'
-      $('<input>').attr('style','width:50%').attr('type','datetime').attr('value',(new Date).toISOString()).prop('disabled',true)
+      $('<input>').attr('style','width:50%').attr('type','datetime').prop('disabled',true)
     else
       console.log 'Error: unknown type'
       $('<input>')
@@ -109,15 +112,18 @@ submit_collection_form = ->
   collection = $('#collection_select').val()
   column_names = []
   row_values = []
-  for child in $('#collection_form').children()
-    if $(child).attr('id') && ($(child).attr('type') != 'hidden')
-      column_names.push fusion_tables_escape($(child).attr('id'))
-      row_values.push fusion_tables_escape($(child).val())
-  fusion_tables_query "INSERT INTO #{collection} (#{column_names.join(', ')}) VALUES (#{row_values.join(', ')})", (data) ->
-    clear_collection_form()
-    $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','submit_success').append('Submitted.')
-    $('#submit_success').delay(1800).fadeOut 1800, ->
-      $(this).remove()
+  construct_latest_urn (urn) =>
+    $('#URN').attr('value',urn)
+    update_timestamp_inputs()
+    for child in $('#collection_form').children()
+      if $(child).attr('id') && ($(child).attr('type') != 'hidden')
+        column_names.push fusion_tables_escape($(child).attr('id'))
+        row_values.push fusion_tables_escape($(child).val())
+    fusion_tables_query "INSERT INTO #{collection} (#{column_names.join(', ')}) VALUES (#{row_values.join(', ')})", (data) ->
+      clear_collection_form()
+      $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','submit_success').append('Submitted.')
+      $('#submit_success').delay(1800).fadeOut 1800, ->
+        $(this).remove()
 
 load_collection_form = ->
   collection = $('#collection_select').val()
@@ -177,6 +183,7 @@ build_collection_form = (collection) ->
   set_author_name()
   construct_latest_urn (urn) ->
     $('#URN').attr('value',urn)
+  update_timestamp_inputs()
 
 set_author_name = ->
   if get_cookie 'author_name'
