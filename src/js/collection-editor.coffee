@@ -74,6 +74,13 @@ save_collection_form = ->
   $('#save_success').fadeOut 1800, ->
     $(this).remove()
 
+submit_collection_form = ->
+  collection = $('#collection_select').val()
+  clear_collection_form()
+  $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','submit_success').append('Submitted.')
+  $('#submit_success').delay(1800).fadeOut 1800, ->
+    $(this).remove()
+
 load_collection_form = ->
   collection = $('#collection_select').val()
   if localStorage[collection]
@@ -94,17 +101,21 @@ build_collection_form = (collection) ->
   properties = $(collection).find('citeProperty')
   add_property_to_form(property,form) for property in properties
 
+  submit_button = $('<input>').attr('type','button').attr('value','Submit').attr('class','btn btn-primary')
+  submit_button.bind 'click', (event) =>
+    submit_collection_form()
   save_button = $('<input>').attr('type','button').attr('value','Save').attr('class','btn')
   save_button.bind 'click', (event) =>
     save_collection_form()
-  clear_button = $('<input>').attr('type','button').attr('value','Clear').attr('class','btn btn-danger')
+  clear_button = $('<input>').attr('type','button').attr('value','Clear').attr('class','btn btn-danger').attr('style','float:right')
   clear_button.bind 'click', (event) =>
     if confirm('Are you sure you wish to clear the form? This action cannot be undone.')
       clear_collection_form()
 
   form.append $('<br>')
-  form.append save_button
+  form.append submit_button
   form.append '&nbsp;&nbsp;'
+  form.append save_button
   form.append clear_button
 
   # test table access
