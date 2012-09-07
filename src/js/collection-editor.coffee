@@ -54,15 +54,34 @@ add_property_to_form = (property, form) ->
   form.append $('<label>').attr('for',$(property).attr('name')).append($(property).attr('label') + ':')
   form.append build_input_for_property property
 
-fusion_tables_query = (query) ->
-  $.ajax "#{FUSION_TABLES_URI}/query?sql=#{query}&access_token=#{get_cookie 'access_token'}",
-    type: 'GET'
-    dataType: 'json'
-    crossDomain: true
-    error: (jqXHR, textStatus, errorThrown) ->
-      console.log "AJAX Error: #{textStatus}"
-    success: (data) ->
-      console.log data
+fusion_tables_query = (query, callback) ->
+  console.log "Query: #{query}"
+  switch query.split(' ')[0]
+    when 'INSERT'
+      $.ajax "#{FUSION_TABLES_URI}/query?access_token=#{get_cookie 'access_token'}",
+        type: 'POST'
+        dataType: 'json'
+        crossDomain: true
+        data:
+          sql: query
+        error: (jqXHR, textStatus, errorThrown) ->
+          console.log "AJAX Error: #{textStatus}"
+        success: (data) ->
+          console.log data
+          if callback?
+            callback(data)
+    when 'SELECT'
+      $.ajax "#{FUSION_TABLES_URI}/query?sql=#{query}&access_token=#{get_cookie 'access_token'}",
+        type: 'GET'
+        dataType: 'json'
+        crossDomain: true
+        error: (jqXHR, textStatus, errorThrown) ->
+          console.log "AJAX Error: #{textStatus}"
+        success: (data) ->
+          console.log data
+          if callback?
+            callback(data)
+  
 
 save_collection_form = ->
   collection = $('#collection_select').val()
@@ -74,20 +93,23 @@ save_collection_form = ->
   $('#save_success').fadeOut 1800, ->
     $(this).remove()
 
+# wrap values in single quotes and backslash-escape single-quotes
+fusion_tables_escape = (value) ->
+  "'#{value.replace(/'/g,"\\\'")}'"
+
 submit_collection_form = ->
   collection = $('#collection_select').val()
   column_names = []
   row_values = []
   for child in $('#collection_form').children()
     if $(child).attr('id')
-      column_names.push $(child).attr('id')
-      # wrap row values in single quotes and backslash-escape single-quotes
-      row_values.push "'#{$(child).val().replace(/'/g,"\\\'")}'"
-  console.log "INSERT INTO #{collection} #{column_names.join(',')} VALUES #{row_values.join(',')}"
-  clear_collection_form()
-  $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','submit_success').append('Submitted.')
-  $('#submit_success').delay(1800).fadeOut 1800, ->
-    $(this).remove()
+      column_names.push fusion_tables_escape($(child).attr('id'))
+      row_values.push fusion_tables_escape($(child).val())
+  fusion_tables_query "INSERT INTO #{collection} (#{column_names.join(', ')}) VALUES (#{row_values.join(', ')})", (data) ->
+    clear_collection_form()
+    $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','submit_success').append('Submitted.')
+    $('#submit_success').delay(1800).fadeOut 1800, ->
+      $(this).remove()
 
 load_collection_form = ->
   collection = $('#collection_select').val()
