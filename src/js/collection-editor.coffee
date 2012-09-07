@@ -43,7 +43,7 @@ build_input_for_property = (property) ->
       else
         $('<input>').attr('style','width:100%')
     when 'datetime'
-      $('<input>').attr('style','width:50%').attr('type','datetime').attr('value',(new Date).toLocaleString()).prop('disabled',true)
+      $('<input>').attr('style','width:50%').attr('type','datetime').attr('value',(new Date).toISOString()).prop('disabled',true)
     else
       console.log 'Error: unknown type'
       $('<input>')
