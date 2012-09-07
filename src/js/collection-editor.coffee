@@ -98,6 +98,7 @@ fusion_tables_escape = (value) ->
   "'#{value.replace(/'/g,"\\\'")}'"
 
 submit_collection_form = ->
+  disable_collection_form()
   collection = $('#collection_select').val()
   column_names = []
   row_values = []
