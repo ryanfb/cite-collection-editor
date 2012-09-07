@@ -1,3 +1,5 @@
+FUSION_TABLES_URI = 'https://www.googleapis.com/fusiontables/v1'
+
 google_oauth_parameters_for_fusion_tables =
   response_type: 'token'
   client_id: '891199912324.apps.googleusercontent.com'
@@ -52,6 +54,16 @@ add_property_to_form = (property, form) ->
   form.append $('<label>').attr('for',$(property).attr('name')).append($(property).attr('label') + ':')
   form.append build_input_for_property property
 
+fusion_tables_query = (query) ->
+  $.ajax "#{FUSION_TABLES_URI}/query?sql=#{query}&access_token=#{get_cookie 'access_token'}",
+    type: 'GET'
+    dataType: 'json'
+    crossDomain: true
+    error: (jqXHR, textStatus, errorThrown) ->
+      console.log "AJAX Error: #{textStatus}"
+    success: (data) ->
+      console.log data
+
 save_collection_form = ->
   collection = $('#collection_select').val()
   localStorage[collection] = true
@@ -97,7 +109,7 @@ build_collection_form = (collection) ->
 
   # test table access
   if get_cookie 'access_token'
-    $.ajax "https://www.googleapis.com/fusiontables/v1/tables/#{$(collection).attr('class')}?access_token=#{get_cookie 'access_token'}",
+    $.ajax "#{FUSION_TABLES_URI}/tables/#{$(collection).attr('class')}?access_token=#{get_cookie 'access_token'}",
       type: 'GET'
       dataType: 'json'
       crossDomain: true
@@ -107,6 +119,7 @@ build_collection_form = (collection) ->
         disable_collection_form()
       success: (data) ->
         console.log data
+        fusion_tables_query("SELECT ROWID FROM #{$(collection).attr('class')}")
 
   $('.container').append form
   set_author_name()
