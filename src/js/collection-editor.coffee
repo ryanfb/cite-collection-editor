@@ -37,9 +37,7 @@ build_input_for_property = (property) ->
     when 'citeurn', 'citeimg'
       # for the special case of the "URN" field, we want to construct the value
       if $(property).attr('name') == 'URN'
-        namespace = $(property).parent().find('namespaceMapping').attr('abbr')
-        collection = $(property).parent().attr('name')
-        $('<input>').attr('style','width:100%').prop('disabled',true).attr('value',cite_urn(namespace,collection,1))
+        $('<input>').attr('style','width:100%').prop('disabled',true)
       else
         $('<input>').attr('style','width:100%')
     when 'datetime'
@@ -73,6 +71,7 @@ fusion_tables_query = (query, callback) ->
     when 'SELECT'
       $.ajax "#{FUSION_TABLES_URI}/query?sql=#{query}&access_token=#{get_cookie 'access_token'}",
         type: 'GET'
+        cache: false
         dataType: 'json'
         crossDomain: true
         error: (jqXHR, textStatus, errorThrown) ->
@@ -82,6 +81,14 @@ fusion_tables_query = (query, callback) ->
           if callback?
             callback(data)
   
+construct_latest_urn = (callback) ->
+  collection = $('#collection_select').val()
+  fusion_tables_query "SELECT ROWID FROM #{collection}", (data) =>
+    console.log data
+    last_available = if data['rows']? then data['rows'].length + 1 else 1
+    latest_urn = cite_urn($('#namespaceMapping').attr('value'),$('#collection_name').attr('value'),last_available)
+    console.log "Latest URN: #{latest_urn}"
+    callback(latest_urn)
 
 save_collection_form = ->
   collection = $('#collection_select').val()
@@ -103,7 +110,7 @@ submit_collection_form = ->
   column_names = []
   row_values = []
   for child in $('#collection_form').children()
-    if $(child).attr('id')
+    if $(child).attr('id') && ($(child).attr('type') != 'hidden')
       column_names.push fusion_tables_escape($(child).attr('id'))
       row_values.push fusion_tables_escape($(child).val())
   fusion_tables_query "INSERT INTO #{collection} (#{column_names.join(', ')}) VALUES (#{row_values.join(', ')})", (data) ->
@@ -129,6 +136,10 @@ clear_collection_form = ->
 
 build_collection_form = (collection) ->
   form = $('<form>').attr('id','collection_form')
+  
+  form.append $('<input>').attr('type','hidden').attr('id','namespaceMapping').attr('value',$(collection).find('namespaceMapping').attr('abbr'))
+  form.append $('<input>').attr('type','hidden').attr('id','collection_name').attr('value',$(collection).attr('name'))
+
   properties = $(collection).find('citeProperty')
   add_property_to_form(property,form) for property in properties
 
@@ -161,10 +172,11 @@ build_collection_form = (collection) ->
         disable_collection_form()
       success: (data) ->
         console.log data
-        fusion_tables_query("SELECT ROWID FROM #{$(collection).attr('class')}")
 
   $('.container').append form
   set_author_name()
+  construct_latest_urn (urn) ->
+    $('#URN').attr('value',urn)
 
 set_author_name = ->
   if get_cookie 'author_name'
