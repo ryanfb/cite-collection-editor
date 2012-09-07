@@ -76,6 +76,13 @@ save_collection_form = ->
 
 submit_collection_form = ->
   collection = $('#collection_select').val()
+  column_names = []
+  row_values = []
+  for child in $('#collection_form').children()
+    if $(child).attr('id')
+      column_names.push $(child).attr('id')
+      row_values.push $(child).val()
+  console.log "INSERT INTO #{collection} #{column_names.join(',')} VALUES #{row_values.join(',')}"
   clear_collection_form()
   $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','submit_success').append('Submitted.')
   $('#submit_success').delay(1800).fadeOut 1800, ->
