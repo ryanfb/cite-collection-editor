@@ -81,7 +81,8 @@ submit_collection_form = ->
   for child in $('#collection_form').children()
     if $(child).attr('id')
       column_names.push $(child).attr('id')
-      row_values.push $(child).val()
+      # wrap row values in single quotes and backslash-escape single-quotes
+      row_values.push "'#{$(child).val().replace(/'/g,"\\\'")}'"
   console.log "INSERT INTO #{collection} #{column_names.join(',')} VALUES #{row_values.join(',')}"
   clear_collection_form()
   $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','submit_success').append('Submitted.')
