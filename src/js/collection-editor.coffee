@@ -20,7 +20,7 @@ disable_collection_form = ->
   $('#collection_form').children().prop('disabled',true)
 
 build_input_for_valuelist = (valuelist) ->
-  select = $('<select>')
+  select = $('<select>').attr('style','display:block')
   values = $(valuelist).find('value')
   select.append $('<option>').append($(value).text()) for value in values
   return select
@@ -36,7 +36,7 @@ build_input_for_property = (property) ->
       if $(property).find('valueList').length > 0
         build_input_for_valuelist $(property).find('valueList')[0]
       else
-        $('<input>').attr('style','width:100%')
+        $('<input>').attr('style','width:100%;display:block')
     when 'citeurn', 'citeimg'
       # for the special case of the "URN" field, we want to construct the value
       if $(property).attr('name') == 'URN'
@@ -44,7 +44,7 @@ build_input_for_property = (property) ->
       else
         $('<input>').attr('style','width:100%')
     when 'datetime'
-      $('<input>').attr('style','width:50%').attr('type','datetime').prop('disabled',true)
+      $('<input>').attr('style','width:50%').attr('type','datetime').prop('disabled',true).attr('style','display:block')
     else
       console.log 'Error: unknown type'
       $('<input>')
@@ -52,7 +52,8 @@ build_input_for_property = (property) ->
 
 add_property_to_form = (property, form) ->
   form.append $('<br>')
-  form.append $('<label>').attr('for',$(property).attr('name')).append($(property).attr('label') + ':')
+  form.append $('<label>').attr('for',$(property).attr('name')).append($(property).attr('label') + ':').attr('style','display:inline')
+  form.append $('<div>').attr('id',"#{$(property).attr('name')}-clippy")
   form.append build_input_for_property property
 
 fusion_tables_query = (query, callback) ->
@@ -180,10 +181,13 @@ build_collection_form = (collection) ->
         console.log data
 
   $('.container').append form
+
   set_author_name()
   construct_latest_urn (urn) ->
     $('#URN').attr('value',urn)
   update_timestamp_inputs()
+  if swfobject.hasFlashPlayerVersion('9')
+    clippy $(property).attr('name') for property in properties
 
 set_author_name = ->
   if get_cookie 'author_name'
@@ -247,6 +251,19 @@ set_access_token_cookie = (params) ->
       success: (data) ->
         set_cookie('access_token',params['access_token'],params['expires_in'])
         $('#oauth_access_warning').remove()
+
+clippy = (id) ->
+  console.log "Clippy: #{id}"
+  flashvars =
+    id: "#{id}"
+  flashparams =
+    quality: 'high'
+    allowscriptaccess: 'always'
+    scale: 'noscale'
+  objectattrs =
+    classid: 'clsid:d27cdb6e-ae6d-11cf-96b8-444553540000'
+    style: "padding-left:5px;padding-top:5px;background-position:5px 5px;background-repeat:no-repeat;background-image:url('vendor/clippy/button_up.png')"
+  swfobject.embedSWF("vendor/clippy/clippy.swf", "#{id}-clippy", "110", "14", "9", false, flashvars, flashparams, objectattrs)
 
 $(document).ready ->
   set_access_token_cookie filter_url_params(parse_query_string(location.hash.substring(1)))
