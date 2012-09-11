@@ -101,6 +101,7 @@ save_collection_form = ->
     if $(child).attr('id') && !$(child).prop('disabled') && ($(child).attr('type') != 'hidden')
       localStorage["#{collection}:#{$(child).attr('id')}"] = $(child).val()
   $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','save_success').append('Saved.')
+  $('html, body').animate({scrollTop: $(document).height()-$(window).height()},600,'linear')
   $('#save_success').fadeOut 1800, ->
     $(this).remove()
 
@@ -123,6 +124,7 @@ submit_collection_form = ->
     fusion_tables_query "INSERT INTO #{collection} (#{column_names.join(', ')}) VALUES (#{row_values.join(', ')})", (data) ->
       clear_collection_form()
       $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','submit_success').append('Submitted.')
+      $('html, body').animate({scrollTop: $(document).height()-$(window).height()},600,'linear')
       $('#submit_success').delay(1800).fadeOut 1800, ->
         $(this).remove()
 
