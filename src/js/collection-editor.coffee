@@ -31,7 +31,17 @@ update_timestamp_inputs = ->
 build_input_for_property = (property) ->
   input = switch $(property).attr('type')
     when 'markdown'
-      $('<textarea>').attr('style','width:100%;height:20em')
+      pagedown_container = $('<div>').attr('class','pagedown_container')
+      pagedown_suffix = $('<input>').attr('type','hidden').attr('class','pagedown_suffix').attr('value',$(property).attr('name'))
+      pagedown_panel = $('<div>').attr('class','wmd-panel')
+      pagedown_panel.append $('<div>').attr('id',"wmd-button-bar-#{$(property).attr('name')}")
+      pagedown_panel.append $('<textarea>').attr('class','wmd-input').attr('id',"wmd-input-#{$(property).attr('name')}")
+      pagedown_preview = $('<div>').attr('class','wmd-panel wmd-preview').attr('id',"wmd-preview-#{$(property).attr('name')}")
+      pagedown_container.append pagedown_suffix
+      pagedown_container.append pagedown_panel
+      pagedown_container.append $('<label>').append('Preview:')
+      pagedown_container.append pagedown_preview
+      pagedown_container
     when 'string'
       if $(property).find('valueList').length > 0
         build_input_for_valuelist $(property).find('valueList')[0]
@@ -186,6 +196,13 @@ build_collection_form = (collection) ->
   construct_latest_urn (urn) ->
     $('#URN').attr('value',urn)
   update_timestamp_inputs()
+
+  converter = new Markdown.Converter()
+  for suffix in $(".pagedown_suffix")
+    console.log "Running Markdown editor for: #{$(suffix).val()}"
+    editor = new Markdown.Editor(converter,"-#{$(suffix).val()}")
+    editor.run()
+
   if swfobject.hasFlashPlayerVersion('9')
     clippy $(property).attr('name') for property in properties
 
