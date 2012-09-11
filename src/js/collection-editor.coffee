@@ -18,6 +18,8 @@ cite_urn = (namespace, collection, row, version) ->
 
 disable_collection_form = ->
   $('#collection_form').children().prop('disabled',true)
+  $('.wmd-input').prop('disabled',true)
+  $('.btn').prop('disabled',true)
 
 build_input_for_valuelist = (valuelist) ->
   select = $('<select>').attr('style','display:block')
