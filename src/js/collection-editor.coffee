@@ -94,7 +94,13 @@ fusion_tables_query = (query, callback) ->
           console.log data
           if callback?
             callback(data)
-  
+
+get_value_for_form_input = (element) ->
+  if $(element).attr('class') == 'pagedown_container'
+    $(element).find('.wmd-input').val()
+  else
+    $(element).val()
+
 construct_latest_urn = (callback) ->
   collection = $('#collection_select').val()
   fusion_tables_query "SELECT ROWID FROM #{collection}", (data) =>
@@ -109,7 +115,7 @@ save_collection_form = ->
   localStorage[collection] = true
   for child in $('#collection_form').children()
     if $(child).attr('id') && !$(child).prop('disabled') && ($(child).attr('type') != 'hidden')
-      localStorage["#{collection}:#{$(child).attr('id')}"] = $(child).val()
+      localStorage["#{collection}:#{$(child).attr('id')}"] = get_value_for_form_input(child)
   $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','save_success').append('Saved.')
   $('#save_success').fadeOut 1800, ->
     $(this).remove()
@@ -129,7 +135,7 @@ submit_collection_form = ->
     for child in $('#collection_form').children()
       if $(child).attr('id') && ($(child).attr('type') != 'hidden')
         column_names.push fusion_tables_escape($(child).attr('id'))
-        row_values.push fusion_tables_escape($(child).val())
+        row_values.push fusion_tables_escape(get_value_for_form_input(child))
     fusion_tables_query "INSERT INTO #{collection} (#{column_names.join(', ')}) VALUES (#{row_values.join(', ')})", (data) ->
       clear_collection_form()
       $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','submit_success').append('Submitted.')
@@ -141,7 +147,10 @@ load_collection_form = ->
   if localStorage[collection]
     for child in $('#collection_form').children()
       if $(child).attr('id') && localStorage["#{collection}:#{$(child).attr('id')}"]?
-        $(child).val(localStorage["#{collection}:#{$(child).attr('id')}"])
+        if $(child).attr('class') == 'pagedown_container'
+          $(child).find('.wmd-input').val(localStorage["#{collection}:#{$(child).attr('id')}"])
+        else
+          $(child).val(localStorage["#{collection}:#{$(child).attr('id')}"])
 
 clear_collection_form = ->
   collection = $('#collection_select').val()
