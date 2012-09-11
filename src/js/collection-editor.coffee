@@ -63,7 +63,10 @@ build_input_for_property = (property) ->
 add_property_to_form = (property, form) ->
   form.append $('<br>')
   form.append $('<label>').attr('for',$(property).attr('name')).append($(property).attr('label') + ':').attr('style','display:inline')
-  form.append $('<div>').attr('id',"#{$(property).attr('name')}-clippy")
+  if $(property).attr('type') == 'markdown'
+    form.append $('<div>').attr('id',"wmd-input-#{$(property).attr('name')}-clippy")
+  else
+    form.append $('<div>').attr('id',"#{$(property).attr('name')}-clippy")
   form.append build_input_for_property property
 
 fusion_tables_query = (query, callback) ->
@@ -213,7 +216,11 @@ build_collection_form = (collection) ->
     editor.run()
 
   if swfobject.hasFlashPlayerVersion('9')
-    clippy $(property).attr('name') for property in properties
+    for property in properties
+      if $(property).attr('type') == 'markdown'
+        clippy "wmd-input-#{$(property).attr('name')}"
+      else
+        clippy $(property).attr('name')
 
 set_author_name = ->
   if get_cookie 'author_name'
