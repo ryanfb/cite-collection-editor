@@ -1,0 +1,16 @@
+import org.gradle.plugins.javascript.coffeescript.CoffeeScriptCompile
+
+apply plugin: 'coffeescript-base'
+
+repositories {
+  mavenCentral()
+  mavenRepo name: "Gradle", url: "http://repo.gradle.org/gradle/repo"
+}
+
+task compileCoffee(type: CoffeeScriptCompile) {
+  source fileTree(coffeesrc)
+  destinationDir file('build/js')
+}
+
+
+
