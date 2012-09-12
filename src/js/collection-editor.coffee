@@ -1,8 +1,11 @@
 FUSION_TABLES_URI = 'https://www.googleapis.com/fusiontables/v1'
 
+default_cite_collection_editor_config =
+  google_client_id: '891199912324.apps.googleusercontent.com'
+  capabilities_url: 'capabilities/testedit-capabilities.xml'
+
 google_oauth_parameters_for_fusion_tables =
   response_type: 'token'
-  client_id: '891199912324.apps.googleusercontent.com'
   redirect_uri: window.location.href.replace("#{location.hash}",'')
   scope: 'https://www.googleapis.com/auth/fusiontables https://www.googleapis.com/auth/userinfo.profile'
   approval_prompt: 'auto'
@@ -303,9 +306,13 @@ clippy = (id) ->
   swfobject.embedSWF("vendor/clippy/clippy.swf", "#{id}-clippy", "110", "14", "9", false, flashvars, flashparams, objectattrs)
 
 $(document).ready ->
+  # merge config parameters
+  cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
+  google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
+  
   set_access_token_cookie filter_url_params(parse_query_string(location.hash.substring(1)))
   
-  $.ajax 'capabilities/testedit-capabilities.xml',
+  $.ajax cite_collection_editor_config['capabilities_url'],
     type: 'GET'
     dataType: 'xml'
     error: (jqXHR, textStatus, errorThrown) ->
