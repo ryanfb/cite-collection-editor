@@ -18,6 +18,8 @@ cite_urn = (namespace, collection, row, version) ->
 
 disable_collection_form = ->
   $('#collection_form').children().prop('disabled',true)
+  $('.wmd-input').prop('disabled',true)
+  $('.btn').prop('disabled',true)
 
 build_input_for_valuelist = (valuelist) ->
   select = $('<select>').attr('style','display:block')
@@ -31,7 +33,17 @@ update_timestamp_inputs = ->
 build_input_for_property = (property) ->
   input = switch $(property).attr('type')
     when 'markdown'
-      $('<textarea>').attr('style','width:100%;height:20em')
+      pagedown_container = $('<div>').attr('class','pagedown_container')
+      pagedown_suffix = $('<input>').attr('type','hidden').attr('class','pagedown_suffix').attr('value',$(property).attr('name'))
+      pagedown_panel = $('<div>').attr('class','wmd-panel')
+      pagedown_panel.append $('<div>').attr('id',"wmd-button-bar-#{$(property).attr('name')}")
+      pagedown_panel.append $('<textarea>').attr('class','wmd-input').attr('id',"wmd-input-#{$(property).attr('name')}")
+      pagedown_preview = $('<div>').attr('class','wmd-panel wmd-preview').attr('id',"wmd-preview-#{$(property).attr('name')}")
+      pagedown_container.append pagedown_suffix
+      pagedown_container.append pagedown_panel
+      pagedown_container.append $('<label>').append('Preview:')
+      pagedown_container.append pagedown_preview
+      pagedown_container
     when 'string'
       if $(property).find('valueList').length > 0
         build_input_for_valuelist $(property).find('valueList')[0]
@@ -53,7 +65,10 @@ build_input_for_property = (property) ->
 add_property_to_form = (property, form) ->
   form.append $('<br>')
   form.append $('<label>').attr('for',$(property).attr('name')).append($(property).attr('label') + ':').attr('style','display:inline')
-  form.append $('<div>').attr('id',"#{$(property).attr('name')}-clippy")
+  if $(property).attr('type') == 'markdown'
+    form.append $('<div>').attr('id',"wmd-input-#{$(property).attr('name')}-clippy")
+  else
+    form.append $('<div>').attr('id',"#{$(property).attr('name')}-clippy")
   form.append build_input_for_property property
 
 fusion_tables_query = (query, callback) ->
@@ -84,7 +99,13 @@ fusion_tables_query = (query, callback) ->
           console.log data
           if callback?
             callback(data)
-  
+
+get_value_for_form_input = (element) ->
+  if $(element).attr('class') == 'pagedown_container'
+    $(element).find('.wmd-input').val()
+  else
+    $(element).val()
+
 construct_latest_urn = (callback) ->
   collection = $('#collection_select').val()
   fusion_tables_query "SELECT ROWID FROM #{collection}", (data) =>
@@ -99,7 +120,7 @@ save_collection_form = ->
   localStorage[collection] = true
   for child in $('#collection_form').children()
     if $(child).attr('id') && !$(child).prop('disabled') && ($(child).attr('type') != 'hidden')
-      localStorage["#{collection}:#{$(child).attr('id')}"] = $(child).val()
+      localStorage["#{collection}:#{$(child).attr('id')}"] = get_value_for_form_input(child)
   $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','save_success').append('Saved.')
   $('html, body').animate({scrollTop: $(document).height()-$(window).height()},600,'linear')
   $('#save_success').fadeOut 1800, ->
@@ -120,7 +141,7 @@ submit_collection_form = ->
     for child in $('#collection_form').children()
       if $(child).attr('id') && ($(child).attr('type') != 'hidden') && !$(child).attr('id').match(/-clippy$/)
         column_names.push fusion_tables_escape($(child).attr('id'))
-        row_values.push fusion_tables_escape($(child).val())
+        row_values.push fusion_tables_escape(get_value_for_form_input(child))
     fusion_tables_query "INSERT INTO #{collection} (#{column_names.join(', ')}) VALUES (#{row_values.join(', ')})", (data) ->
       clear_collection_form()
       $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','submit_success').append('Submitted.')
@@ -133,7 +154,10 @@ load_collection_form = ->
   if localStorage[collection]
     for child in $('#collection_form').children()
       if $(child).attr('id') && localStorage["#{collection}:#{$(child).attr('id')}"]?
-        $(child).val(localStorage["#{collection}:#{$(child).attr('id')}"])
+        if $(child).attr('class') == 'pagedown_container'
+          $(child).find('.wmd-input').val(localStorage["#{collection}:#{$(child).attr('id')}"])
+        else
+          $(child).val(localStorage["#{collection}:#{$(child).attr('id')}"])
 
 clear_collection_form = ->
   collection = $('#collection_select').val()
@@ -188,8 +212,19 @@ build_collection_form = (collection) ->
   construct_latest_urn (urn) ->
     $('#URN').attr('value',urn)
   update_timestamp_inputs()
+
+  converter = new Markdown.Converter()
+  for suffix in $(".pagedown_suffix")
+    console.log "Running Markdown editor for: #{$(suffix).val()}"
+    editor = new Markdown.Editor(converter,"-#{$(suffix).val()}")
+    editor.run()
+
   if swfobject.hasFlashPlayerVersion('9')
-    clippy $(property).attr('name') for property in properties
+    for property in properties
+      if $(property).attr('type') == 'markdown'
+        clippy "wmd-input-#{$(property).attr('name')}"
+      else
+        clippy $(property).attr('name')
 
 set_author_name = ->
   if get_cookie 'author_name'
