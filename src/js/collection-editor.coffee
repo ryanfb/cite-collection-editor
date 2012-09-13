@@ -325,6 +325,10 @@ $(document).ready ->
       $(select).attr('id','collection_select')
       $(select).attr('style','width:100%')
       $('.container').append select
+
+      if parse_query_string()['collection']?
+        $("option[value=#{parse_query_string()['collection']}]").attr('selected','selected')
+
       $('#collection_select').chosen()
       $('#collection_select').bind 'change', (event) =>
         $('#collection_form').remove()
