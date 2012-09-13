@@ -306,13 +306,27 @@ clippy = (id) ->
     style: "padding-left:5px;padding-top:5px;background-position:5px 5px;background-repeat:no-repeat;background-image:url('vendor/clippy/button_up.png')"
   swfobject.embedSWF("vendor/clippy/clippy.swf", "#{id}-clippy", "110", "14", "9", false, flashvars, flashparams, objectattrs)
 
+set_selected_collection_from_hash_parameters = ->
+  if parse_query_string()['collection']?
+    $("option[value=#{parse_query_string()['collection']}]").attr('selected','selected')
+    $('#collection_select').change()
+
+push_selected_collection = ->
+  selected = $('#collection_select option:selected')[0]
+  new_hash = "#collection=#{$(selected).attr('value')}"
+  new_url = if location.hash.length > 0
+    window.location.href.replace("#{location.hash}",new_hash)
+  else
+    window.location.href + new_hash
+  history.pushState(null,$(selected).text(),new_url)
+
 $(document).ready ->
   # merge config parameters
   cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
   google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
   
   set_access_token_cookie filter_url_params(parse_query_string())
-  
+ 
   $.ajax cite_collection_editor_config['capabilities_url'],
     type: 'GET'
     dataType: 'xml'
@@ -326,15 +340,22 @@ $(document).ready ->
       $(select).attr('style','width:100%')
       $('.container').append select
 
-      if parse_query_string()['collection']?
-        $("option[value=#{parse_query_string()['collection']}]").attr('selected','selected')
+      set_selected_collection_from_hash_parameters()
 
+      window.onpopstate = (event) ->
+        $('#collection_select').chosen()
+        set_selected_collection_from_hash_parameters()
+ 
       $('#collection_select').chosen()
       $('#collection_select').bind 'change', (event) =>
+        $('#collection_select').trigger("liszt:updated")
         $('#collection_form').remove()
         $('.alert').remove()
         selected = $('#collection_select option:selected')[0]
         selected_collection = $(data).find("citeCollection[class=#{$(selected).attr('value')}]")[0]
+
+        push_selected_collection()
+
         build_collection_form selected_collection
         load_collection_form()
         unless get_cookie 'access_token'
