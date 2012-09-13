@@ -10,7 +10,7 @@ google_oauth_parameters_for_fusion_tables =
   scope: 'https://www.googleapis.com/auth/fusiontables https://www.googleapis.com/auth/userinfo.profile'
   approval_prompt: 'auto'
 
-google_oauth_url =
+google_oauth_url = ->
   "https://accounts.google.com/o/oauth2/auth?#{$.param(google_oauth_parameters_for_fusion_tables)}"
 
 cite_urn = (namespace, collection, row, version) ->
@@ -245,6 +245,7 @@ set_author_name = ->
         $('#Author').attr('value',data['name'])
 
 parse_query_string = (query_string) ->
+  query_string ?= location.hash.substring(1)
   params = {}
   if query_string.length > 0
     regex = /([^&=]+)=([^&]*)/g
@@ -310,7 +311,7 @@ $(document).ready ->
   cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
   google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
   
-  set_access_token_cookie filter_url_params(parse_query_string(location.hash.substring(1)))
+  set_access_token_cookie filter_url_params(parse_query_string())
   
   $.ajax cite_collection_editor_config['capabilities_url'],
     type: 'GET'
@@ -334,6 +335,6 @@ $(document).ready ->
         load_collection_form()
         unless get_cookie 'access_token'
           $('h1').after $('<div>').attr('class','alert alert-warning').attr('id','oauth_access_warning').append('You have not authorized this application to access your Google Fusion Tables. ')
-          $('#oauth_access_warning').append $('<a>').attr('href',google_oauth_url).append('Click here to authorize.')
+          $('#oauth_access_warning').append $('<a>').attr('href',google_oauth_url()).append('Click here to authorize.')
           disable_collection_form()
       $('#collection_select').change()
