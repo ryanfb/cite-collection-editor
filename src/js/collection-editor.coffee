@@ -253,10 +253,11 @@ parse_query_string = (query_string) ->
       params[decodeURIComponent(m[1])] = decodeURIComponent(m[2])
   return params
 
-filter_url_params = (params) ->
+filter_url_params = (params, filtered_params) ->
   rewritten_params = []
+  filtered_params ?= ['access_token','expires_in','token_type']
   for key, value of params
-    unless _.include(['access_token','expires_in','token_type'],key)
+    unless _.include(filtered_params,key)
       rewritten_params.push "#{key}=#{value}"
   if rewritten_params.length > 0
     hash_string = "##{rewritten_params.join('&')}"
