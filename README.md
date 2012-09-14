@@ -24,3 +24,7 @@ Configuration
         };
 
 * Compile CoffeeScript to JavaScript (now available from Gradle build)
+
+
+## Requirements
+- gradle 1.1 required to compile coffeescript to javascript
