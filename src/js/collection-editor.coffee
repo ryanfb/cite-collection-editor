@@ -154,9 +154,12 @@ submit_collection_form = ->
 
 load_collection_form = ->
   collection = $('#collection_select').val()
-  if localStorage[collection]
-    for child in $('#collection_form').children()
-      if $(child).attr('id') && localStorage["#{collection}:#{$(child).attr('id')}"]?
+  for child in $('#collection_form').children()
+    if $(child).attr('id')?
+      if parse_query_string()[$(child).attr('id')]?
+        $(child).val(parse_query_string()[$(child).attr('id')])
+        # filter_url_params(parse_query_string(),[$(child).attr('id')])
+      else if localStorage["#{collection}:#{$(child).attr('id')}"]?
         if $(child).attr('class') == 'pagedown_container'
           $(child).find('.wmd-input').val(localStorage["#{collection}:#{$(child).attr('id')}"])
         else
@@ -315,8 +318,9 @@ set_selected_collection_from_hash_parameters = ->
 push_selected_collection = ->
   selected = $('#collection_select option:selected')[0]
   new_hash = "#collection=#{$(selected).attr('value')}"
+  filter_url_params(parse_query_string(),['collection'])
   new_url = if location.hash.length > 0
-    window.location.href.replace("#{location.hash}",new_hash)
+    window.location.href.replace("#{location.hash}","#{new_hash}&#{location.hash.substring(1)}")
   else
     window.location.href + new_hash
   history.pushState(null,$(selected).text(),new_url)
