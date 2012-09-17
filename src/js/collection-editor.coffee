@@ -158,7 +158,7 @@ load_collection_form = ->
     if $(child).attr('id')?
       if parse_query_string()[$(child).attr('id')]?
         $(child).val(parse_query_string()[$(child).attr('id')])
-        # filter_url_params(parse_query_string(),[$(child).attr('id')])
+        filter_url_params(parse_query_string(),[$(child).attr('id')])
       else if localStorage["#{collection}:#{$(child).attr('id')}"]?
         if $(child).attr('class') == 'pagedown_container'
           $(child).find('.wmd-input').val(localStorage["#{collection}:#{$(child).attr('id')}"])
