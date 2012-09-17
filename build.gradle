@@ -9,7 +9,9 @@ repositories {
 
 task compileCoffee(type: CoffeeScriptCompile) {
   source fileTree(coffeesrc)
+  include "**/*.coffee"
   destinationDir file('build/js')
+  
 }
 
 
