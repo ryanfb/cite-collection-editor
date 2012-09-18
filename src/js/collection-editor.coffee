@@ -295,7 +295,7 @@ set_access_token_cookie = (params) ->
         console.log "Access Token Validation Error: #{textStatus}"
       success: (data) ->
         set_cookie('access_token',params['access_token'],params['expires_in'])
-        $('#oauth_access_warning').remove()
+        $('#collection_select').change()
 
 clippy = (id) ->
   console.log "Clippy: #{id}"
