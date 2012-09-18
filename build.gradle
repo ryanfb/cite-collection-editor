@@ -10,9 +10,30 @@ repositories {
 task compileCoffee(type: CoffeeScriptCompile) {
   source fileTree(coffeesrc)
   include "**/*.coffee"
-  destinationDir file('build/js')
-  
+  destinationDir file("${buildDir.path}/js")
 }
 
+task filter(type: Copy) {
+  from 'src'
+  into "${buildDir.path}"
+  include "**/*.html"
+  expand(gradle.properties)
+}
 
+task copy(type: Copy) {
+  from 'src'
+  into "${buildDir.path}"
+  include "**/*.js"
+  include "**/*.css"
+  include "**/*.xml"
+  include "**/*.rng"
+  include "**/*.png"
+  include "**/*.swf"
+  exclude "src/js/collection-editor.js"
+}
+
+task build {
+  dependsOn compileCoffee, filter, copy
+  description = "Assemble website from source"
+}
 
