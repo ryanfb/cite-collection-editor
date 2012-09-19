@@ -1,2 +1,3 @@
 src/js/collection-editor.js
 build
+gradle.properties
