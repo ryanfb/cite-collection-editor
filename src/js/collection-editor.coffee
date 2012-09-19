@@ -52,7 +52,7 @@ build_input_for_property = (property) ->
         build_input_for_valuelist $(property).find('valueList')[0]
       else
         $('<input>').attr('style','width:100%;display:block')
-    when 'citeurn', 'citeimg'
+    when 'citeurn', 'citeimg', 'ctsurn'
       # for the special case of the "URN" field, we want to construct the value
       if $(property).attr('name') == 'URN'
         $('<input>').attr('style','width:100%').prop('disabled',true)
