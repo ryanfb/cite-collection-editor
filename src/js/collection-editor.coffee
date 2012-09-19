@@ -114,7 +114,7 @@ construct_latest_urn = (callback) ->
   fusion_tables_query "SELECT ROWID FROM #{collection}", (data) =>
     console.log data
     last_available = if data['rows']? then data['rows'].length + 1 else 1
-    latest_urn = cite_urn($('#namespaceMapping').attr('value'),$('#collection_name').attr('value'),last_available)
+    latest_urn = cite_urn($('#namespaceMapping').attr('value'),$('#collection_name').attr('value'),last_available,1)
     console.log "Latest URN: #{latest_urn}"
     callback(latest_urn)
 
