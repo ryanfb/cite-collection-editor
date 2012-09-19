@@ -3,5 +3,5 @@ coffeesrc=src/js
 
 # Set these properties here, or override the settings on the command
 # line when running a gradle task.
-capsurl=YOUR_EDIT_CAPABILITIES.xml
-googleid=YOUR_APP_ID_.googleusercontent.com
+capabilities_url=YOUR_EDIT_CAPABILITIES.xml
+google_client_id=YOUR_APP_ID_.googleusercontent.com
