@@ -144,6 +144,7 @@ fusion_tables_escape = (value) ->
 # submit the form to Fusion Tables
 submit_collection_form = ->
   disable_collection_form()
+  save_collection_form()
   collection = $('#collection_select').val()
   column_names = []
   row_values = []
