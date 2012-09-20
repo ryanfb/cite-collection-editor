@@ -87,6 +87,11 @@ fusion_tables_query = (query, callback) ->
           sql: query
         error: (jqXHR, textStatus, errorThrown) ->
           console.log "AJAX Error: #{textStatus}"
+          $('#collection_form').after $('<div>').attr('class','alert alert-error').attr('id','submit_error').append("Error submitting data: #{textStatus}")
+          scroll_to_bottom()
+          $('#submit_error').delay(1800).fadeOut 1800, ->
+            $(this).remove()
+            $('#collection_select').change()
         success: (data) ->
           console.log data
           if callback?
