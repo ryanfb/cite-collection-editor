@@ -363,6 +363,7 @@ $(document).ready ->
     dataType: 'xml'
     error: (jqXHR, textStatus, errorThrown) ->
       console.log "AJAX Error: #{textStatus}"
+      $('h1').after $('<div>').attr('class','alert alert-error').append("Error loading the collection capabilities URL \"#{cite_collection_editor_config['capabilities_url']}\".")
     success: (data) ->
       collections = $(data).find('citeCollection')
       select = $('<select>')
