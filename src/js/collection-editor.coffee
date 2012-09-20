@@ -13,6 +13,7 @@ google_oauth_parameters_for_fusion_tables =
 google_oauth_url = ->
   "https://accounts.google.com/o/oauth2/auth?#{$.param(google_oauth_parameters_for_fusion_tables)}"
 
+# construct a CITE URN with optional version
 cite_urn = (namespace, collection, row, version) ->
   urn = "urn:cite:#{namespace}:#{collection}.#{row}"
   if arguments.length == 4
@@ -86,6 +87,11 @@ fusion_tables_query = (query, callback) ->
           sql: query
         error: (jqXHR, textStatus, errorThrown) ->
           console.log "AJAX Error: #{textStatus}"
+          $('#collection_form').after $('<div>').attr('class','alert alert-error').attr('id','submit_error').append("Error submitting data: #{textStatus}")
+          scroll_to_bottom()
+          $('#submit_error').delay(1800).fadeOut 1800, ->
+            $(this).remove()
+            $('#collection_select').change()
         success: (data) ->
           console.log data
           if callback?
@@ -103,12 +109,15 @@ fusion_tables_query = (query, callback) ->
           if callback?
             callback(data)
 
+# getter for form inputs because we need a special case for markdown
 get_value_for_form_input = (element) ->
   if $(element).attr('class') == 'pagedown_container'
     $(element).find('.wmd-input').val()
   else
     $(element).val()
 
+# construct the latest URN - because this is asynchronous, it
+# takes a callback function which gets passed the resulting URN
 construct_latest_urn = (callback) ->
   collection = $('#collection_select').val()
   fusion_tables_query "SELECT ROWID FROM #{collection}", (data) =>
@@ -118,6 +127,10 @@ construct_latest_urn = (callback) ->
     console.log "Latest URN: #{latest_urn}"
     callback(latest_urn)
 
+scroll_to_bottom = ->
+  $('html, body').animate({scrollTop: $(document).height()-$(window).height()},600,'linear')
+
+# save collection form values to localStorage
 save_collection_form = ->
   collection = $('#collection_select').val()
   localStorage[collection] = true
@@ -125,7 +138,7 @@ save_collection_form = ->
     if $(child).attr('id') && !$(child).prop('disabled') && ($(child).attr('type') != 'hidden')
       localStorage["#{collection}:#{$(child).attr('id')}"] = get_value_for_form_input(child)
   $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','save_success').append('Saved.')
-  $('html, body').animate({scrollTop: $(document).height()-$(window).height()},600,'linear')
+  scroll_to_bottom()
   $('#save_success').fadeOut 1800, ->
     $(this).remove()
 
@@ -133,11 +146,15 @@ save_collection_form = ->
 fusion_tables_escape = (value) ->
   "'#{value.replace(/'/g,"\\\'")}'"
 
+# submit the form to Fusion Tables
 submit_collection_form = ->
   disable_collection_form()
+  save_collection_form()
   collection = $('#collection_select').val()
   column_names = []
   row_values = []
+  # the main body of the submission is in an anonymous callback function that gets the URN,
+  # this is so we hopefully have the latest URN possible
   construct_latest_urn (urn) =>
     $('#URN').attr('value',urn)
     update_timestamp_inputs()
@@ -148,10 +165,11 @@ submit_collection_form = ->
     fusion_tables_query "INSERT INTO #{collection} (#{column_names.join(', ')}) VALUES (#{row_values.join(', ')})", (data) ->
       clear_collection_form()
       $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','submit_success').append('Submitted.')
-      $('html, body').animate({scrollTop: $(document).height()-$(window).height()},600,'linear')
+      scroll_to_bottom()
       $('#submit_success').delay(1800).fadeOut 1800, ->
         $(this).remove()
 
+# populate collection form values from hash parameters or localStorage if set
 load_collection_form = ->
   collection = $('#collection_select').val()
   for child in $('#collection_form').children()
@@ -165,6 +183,7 @@ load_collection_form = ->
         else
           $(child).val(localStorage["#{collection}:#{$(child).attr('id')}"])
 
+# remove form values from localStorage and reset the form
 clear_collection_form = ->
   collection = $('#collection_select').val()
   localStorage.removeItem(collection)
@@ -173,6 +192,7 @@ clear_collection_form = ->
       localStorage.removeItem("#{collection}:#{$(child).attr('id')}")
   $('#collection_select').change()
 
+# top-level function for building the collection form
 build_collection_form = (collection) ->
   form = $('<form>').attr('id','collection_form')
   
@@ -214,17 +234,20 @@ build_collection_form = (collection) ->
 
   $('.container').append form
 
+  # update various inputs after we've actually put the form in the DOM
   set_author_name()
   construct_latest_urn (urn) ->
     $('#URN').attr('value',urn)
   update_timestamp_inputs()
 
+  # create the Markdown/Pagedown preview after we've put the form in the DOM
   converter = new Markdown.Converter()
   for suffix in $(".pagedown_suffix")
     console.log "Running Markdown editor for: #{$(suffix).val()}"
     editor = new Markdown.Editor(converter,"-#{$(suffix).val()}")
     editor.run()
 
+  # if we have Flash, put clippy helpers on all the inputs
   if swfobject.hasFlashPlayerVersion('9')
     for property in properties
       if $(property).attr('type') == 'markdown'
@@ -232,6 +255,7 @@ build_collection_form = (collection) ->
       else
         clippy $(property).attr('name')
 
+# set the author name using Google profile information
 set_author_name = ->
   if get_cookie 'author_name'
     $('#Author').attr('value',get_cookie 'author_name')
@@ -247,6 +271,7 @@ set_author_name = ->
         set_cookie('author_name',data['name'],3600)
         $('#Author').attr('value',data['name'])
 
+# parse URL hash parameters into an associative array object
 parse_query_string = (query_string) ->
   query_string ?= location.hash.substring(1)
   params = {}
@@ -256,6 +281,8 @@ parse_query_string = (query_string) ->
       params[decodeURIComponent(m[1])] = decodeURIComponent(m[2])
   return params
 
+# filter URL parameters out of the window URL using replaceState 
+# returns the original parameters
 filter_url_params = (params, filtered_params) ->
   rewritten_params = []
   filtered_params ?= ['access_token','expires_in','token_type']
@@ -284,6 +311,7 @@ get_cookie = (key) ->
     return cookie_fragment.substring(key.length, cookie_fragment.length) if cookie_fragment.indexOf(key) == 0
   return null
 
+# write a Google OAuth access token into a cached cookie that should expire when the access token does
 set_access_token_cookie = (params) ->
   if params['access_token']?
     # validate the token per https://developers.google.com/accounts/docs/OAuth2UserAgent#validatetoken
@@ -297,6 +325,7 @@ set_access_token_cookie = (params) ->
         set_cookie('access_token',params['access_token'],params['expires_in'])
         $('#collection_select').change()
 
+# construct a clippy element to replace the given placeholder id
 clippy = (id) ->
   console.log "Clippy: #{id}"
   flashvars =
@@ -310,11 +339,13 @@ clippy = (id) ->
     style: "padding-left:5px;padding-top:5px;background-position:5px 5px;background-repeat:no-repeat;background-image:url('vendor/clippy/button_up.png')"
   swfobject.embedSWF("vendor/clippy/clippy.swf", "#{id}-clippy", "110", "14", "9", false, flashvars, flashparams, objectattrs)
 
+# use hash parameters to set the selected collection
 set_selected_collection_from_hash_parameters = ->
   if parse_query_string()['collection']?
     $("option[value=#{parse_query_string()['collection']}]").attr('selected','selected')
     $('#collection_select').change()
 
+# push the selected collection into history with the collection as a hash parameter
 push_selected_collection = ->
   selected = $('#collection_select option:selected')[0]
   new_hash = "#collection=#{$(selected).attr('value')}"
@@ -325,6 +356,7 @@ push_selected_collection = ->
     window.location.href + new_hash
   history.pushState(null,$(selected).text(),new_url)
 
+# main collection editor entry point
 $(document).ready ->
   # merge config parameters
   cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
@@ -337,6 +369,7 @@ $(document).ready ->
     dataType: 'xml'
     error: (jqXHR, textStatus, errorThrown) ->
       console.log "AJAX Error: #{textStatus}"
+      $('h1').after $('<div>').attr('class','alert alert-error').append("Error loading the collection capabilities URL \"#{cite_collection_editor_config['capabilities_url']}\".")
     success: (data) ->
       collections = $(data).find('citeCollection')
       select = $('<select>')

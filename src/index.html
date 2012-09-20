@@ -14,12 +14,17 @@
 <script type="text/javascript" src="vendor/pagedown-bootstrap/Markdown.Converter.js"></script>
 <script type="text/javascript" src="vendor/pagedown-bootstrap/Markdown.Sanitizer.js"></script>
 <script type="text/javascript" src="vendor/pagedown-bootstrap/Markdown.Editor.js"></script>
-</head>
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"></link>
 <link href="vendor/pagedown-bootstrap/Markdown.Editor.css" rel="stylesheet"></link>
 <link href="vendor/chosen/chosen.css" rel="stylesheet"></link>
-
+</head>
 <body>
+  <script type="text/javascript">
+    window.cite_collection_editor_config = {
+      google_client_id: '@google_client_id@',
+      capabilities_url: '@capabilities_url@'
+    };
+  </script>
   <div class="container">
     <h1>CITE Collection Editor</h1>
   </div>

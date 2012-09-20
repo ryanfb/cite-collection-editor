@@ -1,4 +1,5 @@
 import org.gradle.plugins.javascript.coffeescript.CoffeeScriptCompile
+import org.apache.tools.ant.filters.ReplaceTokens
 
 apply plugin: 'coffeescript-base'
 
@@ -18,6 +19,7 @@ task filter(type: Copy) {
   into "${buildDir.path}"
   include "**/*.html"
   expand(gradle.properties)
+  filter(ReplaceTokens, tokens: [google_client_id: google_client_id, capabilities_url: capabilities_url])
 }
 
 task copy(type: Copy) {
