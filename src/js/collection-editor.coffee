@@ -312,7 +312,7 @@ get_cookie = (key) ->
   return null
 
 # write a Google OAuth access token into a cached cookie that should expire when the access token does
-set_access_token_cookie = (params) ->
+set_access_token_cookie = (params, callback) ->
   if params['access_token']?
     # validate the token per https://developers.google.com/accounts/docs/OAuth2UserAgent#validatetoken
     $.ajax "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=#{params['access_token']}",
@@ -324,6 +324,8 @@ set_access_token_cookie = (params) ->
       success: (data) ->
         set_cookie('access_token',params['access_token'],params['expires_in'])
         $('#collection_select').change()
+      complete: (jqXHR, textStatus) ->
+        callback() if callback?
 
 # construct a clippy element to replace the given placeholder id
 clippy = (id) ->
