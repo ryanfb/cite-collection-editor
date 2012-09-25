@@ -227,7 +227,7 @@ build_collection_form = (collection) ->
       crossDomain: true
       error: (jqXHR, textStatus, errorThrown) ->
         console.log "AJAX Error: #{textStatus}"
-        $('h1').after $('<div>').attr('class','alert alert-error').attr('id','collection_access_error').append('You do not have permission to access this collection.')
+        $('.container > h1').after $('<div>').attr('class','alert alert-error').attr('id','collection_access_error').append('You do not have permission to access this collection.')
         disable_collection_form()
       success: (data) ->
         console.log data
@@ -266,7 +266,7 @@ set_author_name = ->
       crossDomain: true
       error: (jqXHR, textStatus, errorThrown) ->
         console.log "AJAX Error: #{textStatus}"
-        # $('h1').after $('<div>').attr('class','alert alert-warning').append('Error retrieving profile info.')
+        # $('.container > h1').after $('<div>').attr('class','alert alert-warning').append('Error retrieving profile info.')
       success: (data) ->
         set_cookie('author_name',data['name'],3600)
         $('#Author').attr('value',data['name'])
@@ -374,7 +374,7 @@ $(document).ready ->
     dataType: 'xml'
     error: (jqXHR, textStatus, errorThrown) ->
       console.log "AJAX Error: #{textStatus}"
-      $('h1').after $('<div>').attr('class','alert alert-error').append("Error loading the collection capabilities URL \"#{cite_collection_editor_config['capabilities_url']}\".")
+      $('.container > h1').after $('<div>').attr('class','alert alert-error').append("Error loading the collection capabilities URL \"#{cite_collection_editor_config['capabilities_url']}\".")
     success: (data) ->
       collections = $(data).find('citeCollection')
       select = $('<select>')
@@ -402,7 +402,7 @@ $(document).ready ->
         build_collection_form selected_collection
         load_collection_form()
         unless get_cookie 'access_token'
-          $('h1').after $('<div>').attr('class','alert alert-warning').attr('id','oauth_access_warning').append('You have not authorized this application to access your Google Fusion Tables. ')
+          $('.container > h1').after $('<div>').attr('class','alert alert-warning').attr('id','oauth_access_warning').append('You have not authorized this application to access your Google Fusion Tables. ')
           $('#oauth_access_warning').append $('<a>').attr('href',google_oauth_url()).append('Click here to authorize.')
           disable_collection_form()
       $('#collection_select').change()
