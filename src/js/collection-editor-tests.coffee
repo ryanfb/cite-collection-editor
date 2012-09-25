@@ -68,3 +68,15 @@ test "access token cookie should be written for valid access tokens", ->
   set_access_token_cookie mock_access_token_params, ->
     equal( get_cookie('access_token'), mock_access_token_params['access_token'] )
     start()
+
+module "author name"
+  setup: ->
+    delete_cookie 'author_name'
+  teardown: ->
+    delete_cookie 'author_name'
+    $.mockjaxClear()
+
+test "set_author_name should pull from cookie when available", ->
+  set_cookie 'author_name', 'Test User', 60
+  set_author_name()
+  equal( $('#Author').attr('value'), 'Test User' )
