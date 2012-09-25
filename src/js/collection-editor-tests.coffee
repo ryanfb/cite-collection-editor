@@ -10,6 +10,8 @@ test "URN construction", ->
   equal( cite_urn('namespace','collection','row'), 'urn:cite:namespace:collection.row' )
   equal( cite_urn('namespace','collection','row','version'), 'urn:cite:namespace:collection.row.version' )
 
+module "cookie functions"
+
 test "values set by set_cookie should be readable by get_cookie", ->
   set_cookie 'cookie_test', 'test value', 60
   equal( get_cookie('cookie_test'), 'test value' )
