@@ -304,6 +304,9 @@ set_cookie = (key, value, expires_in) ->
   cookie += "path=#{window.location.pathname.substring(0,window.location.pathname.lastIndexOf('/')+1)}"
   document.cookie = cookie
 
+delete_cookie = (key) ->
+  set_cookie key, null, -1
+
 get_cookie = (key) ->
   key += "="
   for cookie_fragment in document.cookie.split(';')

@@ -13,13 +13,13 @@ test "URN construction", ->
 test "values set by set_cookie should be readable by get_cookie", ->
   set_cookie 'cookie_test', 'test value', 60
   equal( get_cookie('cookie_test'), 'test value' )
-  set_cookie 'cookie_test', 'delete', -1
+  delete_cookie 'cookie_test'
 
 module "access token cookies",
   setup: ->
-    set_cookie 'access_token', 'delete', -86400
+    delete_cookie 'access_token'
   teardown: ->
-    set_cookie 'access_token', 'delete', -86400
+    delete_cookie 'access_token'
     $.mockjaxClear()
 
 test "access token cookie should not be written for invalid access tokens", ->
