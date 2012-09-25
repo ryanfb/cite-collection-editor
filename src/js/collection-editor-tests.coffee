@@ -20,6 +20,15 @@ test "values deleted by delete_cookie should return null", ->
   delete_cookie 'delete_cookie_test'
   equal( get_cookie('delete_cookie_test'), null )
 
+asyncTest "cookies set by set_cookie should expire", ->
+  expect(2)
+  set_cookie 'expire_cookie_test', 'test value', 1
+  equal( get_cookie('expire_cookie_test'), 'test value' )
+  setTimeout ->
+    equal( get_cookie('expire_cookie_test'), null )
+    start()
+  , 1001
+
 module "access token cookies",
   setup: ->
     delete_cookie 'access_token'
