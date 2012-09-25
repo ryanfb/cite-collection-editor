@@ -28,6 +28,7 @@ module "access token cookies",
     $.mockjaxClear()
 
 test "access token cookie should not be written for invalid access tokens", ->
+  expect(2)
   equal( get_cookie('access_token'), null, 'cookie not set at test start' )
   $.mockjax
     url: 'https://www.googleapis.com/oauth2/v1/tokeninfo?*'
@@ -41,6 +42,7 @@ test "access token cookie should not be written for invalid access tokens", ->
     start()
 
 test "access token cookie should be written for valid access tokens", ->
+  expect(2)
   equal( get_cookie('access_token'), null, 'cookie not set at test start' )
   $.mockjax
     url: 'https://www.googleapis.com/oauth2/v1/tokeninfo?*'
