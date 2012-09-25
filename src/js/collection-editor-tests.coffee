@@ -71,8 +71,10 @@ test "access token cookie should be written for valid access tokens", ->
 
 module "author name"
   setup: ->
+    set_cookie 'access_token', 'nonsense', 3600
     delete_cookie 'author_name'
   teardown: ->
+    delete_cookie 'access_token'
     delete_cookie 'author_name'
     $.mockjaxClear()
 
@@ -80,3 +82,18 @@ test "set_author_name should pull from cookie when available", ->
   set_cookie 'author_name', 'Test User', 60
   set_author_name()
   equal( $('#Author').attr('value'), 'Test User' )
+
+test "set_author_name with a successful AJAX call should set the cookie and populate the UI", ->
+  expect(2)
+  $.mockjax
+    url: 'https://www.googleapis.com/oauth2/v1/userinfo?*'
+    contentType: 'text/json'
+    status: 200
+    responseText:
+      name: 'AJAX User'
+  stop()
+  set_author_name ->
+    equal( get_cookie('author_name'), 'AJAX User' )
+    equal( $('#Author').attr('value'), 'AJAX User' )
+    start()
+

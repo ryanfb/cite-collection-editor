@@ -256,7 +256,7 @@ build_collection_form = (collection) ->
         clippy $(property).attr('name')
 
 # set the author name using Google profile information
-set_author_name = ->
+set_author_name = (callback) ->
   if get_cookie 'author_name'
     $('#Author').attr('value',get_cookie 'author_name')
   else if get_cookie 'access_token'
@@ -270,6 +270,8 @@ set_author_name = ->
       success: (data) ->
         set_cookie('author_name',data['name'],3600)
         $('#Author').attr('value',data['name'])
+      complete: (jqXHR, textStatus) ->
+        callback() if callback?
 
 # parse URL hash parameters into an associative array object
 parse_query_string = (query_string) ->
