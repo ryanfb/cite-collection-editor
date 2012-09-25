@@ -15,6 +15,11 @@ test "values set by set_cookie should be readable by get_cookie", ->
   equal( get_cookie('cookie_test'), 'test value' )
   delete_cookie 'cookie_test'
 
+test "values deleted by delete_cookie should return null", ->
+  set_cookie 'delete_cookie_test', 'test value', 60
+  delete_cookie 'delete_cookie_test'
+  equal( get_cookie('delete_cookie_test'), null )
+
 module "access token cookies",
   setup: ->
     delete_cookie 'access_token'
