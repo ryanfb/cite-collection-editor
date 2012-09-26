@@ -70,7 +70,7 @@ $(document).ready ->
       equal( get_cookie('access_token'), mock_access_token_params['access_token'] )
       start()
 
-  module "author name"
+  module "author name",
     setup: ->
       set_cookie 'access_token', 'nonsense', 3600
       delete_cookie 'author_name'
@@ -116,3 +116,19 @@ $(document).ready ->
       equal( get_cookie('author_name'), null )
       equal( $('#Author').attr('value'), '' )
       start()
+
+  module "filter url",
+    setup: ->
+      history.replaceState(null,'',window.location.href.replace("#{location.hash}",''))
+    teardown: ->
+      history.replaceState(null,'',window.location.href.replace("#{location.hash}",''))
+
+  test "filter_url_params should filter off access_token, expires_in, and token_type by default", ->
+    clean_url = window.location.href.replace("#{location.hash}",'')
+    equal( window.location.href, clean_url, "url is clean at test start" )
+    history.replaceState(null,'',"#{window.location.href}##{$.param(mock_access_token_params)}")
+    equal( window.location.href, "#{clean_url}##{$.param(mock_access_token_params)}", "url gets expected parameters at test start" )
+    original_params = parse_query_string()
+    filtered_params = filter_url_params(original_params)
+    equal( filtered_params, original_params, "filter_url_params returns original params" )
+    equal( window.location.href, clean_url, "filter_url_params strips off expected params" )
