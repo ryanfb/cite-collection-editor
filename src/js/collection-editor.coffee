@@ -404,10 +404,11 @@ build_collection_editor_from_capabilities = (capabilities_url) ->
 
 # main collection editor entry point
 $(document).ready ->
-  # merge config parameters
-  cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
-  google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
-  
-  set_access_token_cookie filter_url_params(parse_query_string())
+  unless $('#qunit').length
+    # merge config parameters
+    cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
+    google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
+    
+    set_access_token_cookie filter_url_params(parse_query_string())
  
-  build_collection_editor_from_capabilities cite_collection_editor_config['capabilities_url']
+    build_collection_editor_from_capabilities cite_collection_editor_config['capabilities_url']

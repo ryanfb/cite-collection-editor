@@ -73,20 +73,22 @@ module "author name"
   setup: ->
     set_cookie 'access_token', 'nonsense', 3600
     delete_cookie 'author_name'
-    $('#Author').attr('value','')
+    $('.container').append $('<input>').attr('id','Author').attr('value','')
   teardown: ->
     delete_cookie 'access_token'
     delete_cookie 'author_name'
-    $('#Author').attr('value','')
+    $('#Author').remove()
     $.mockjaxClear()
 
 test "set_author_name should pull from cookie when available", ->
+  equal( $('#Author').attr('value'), '', 'author empty at start')
   set_cookie 'author_name', 'Test User', 60
   set_author_name()
-  equal( $('#Author').attr('value'), 'Test User' )
+  equal( $('#Author').attr('value'), 'Test User', 'author set')
 
 test "set_author_name with a successful AJAX call should set the cookie and populate the UI", ->
-  expect(2)
+  expect(3)
+  equal( $('#Author').attr('value'), '', 'author empty at start')
   $.mockjax
     url: 'https://www.googleapis.com/oauth2/v1/userinfo?*'
     contentType: 'text/json'
@@ -100,7 +102,8 @@ test "set_author_name with a successful AJAX call should set the cookie and popu
     start()
 
 test "set_author_name with an unsuccessful AJAX call should do nothing", ->
-  expect(2)
+  expect(3)
+  equal( $('#Author').attr('value'), '', 'author empty at start')
   $.mockjax
     url: 'https://www.googleapis.com/oauth2/v1/userinfo?*'
     contentType: 'text/json'
