@@ -132,3 +132,15 @@ $(document).ready ->
     filtered_params = filter_url_params(original_params)
     equal( filtered_params, original_params, "filter_url_params returns original params" )
     equal( window.location.href, clean_url, "filter_url_params strips off expected params" )
+
+  test "filter_url_params should filter off passed in parameters", ->
+    clean_url = window.location.href.replace("#{location.hash}",'')
+    equal( window.location.href, clean_url, "url is clean at test start" )
+    collection_param =
+      collection: 'nonsense'
+    history.replaceState(null,'',"#{window.location.href}##{$.param(collection_param)}")
+    equal( window.location.href, "#{clean_url}##{$.param(collection_param)}", "url gets expected parameters at test start" )
+    original_params = parse_query_string()
+    filtered_params = filter_url_params(original_params,['collection'])
+    equal( filtered_params, original_params, "filter_url_params returns original params" )
+    equal( window.location.href, clean_url, "filter_url_params strips off expected params" )
