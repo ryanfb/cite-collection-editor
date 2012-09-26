@@ -363,15 +363,8 @@ push_selected_collection = ->
     window.location.href + new_hash
   history.pushState(null,$(selected).text(),new_url)
 
-# main collection editor entry point
-$(document).ready ->
-  # merge config parameters
-  cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
-  google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
-  
-  set_access_token_cookie filter_url_params(parse_query_string())
- 
-  $.ajax cite_collection_editor_config['capabilities_url'],
+build_collection_editor_from_capabilities = (capabilities_url) ->
+  $.ajax capabilities_url,
     type: 'GET'
     dataType: 'xml'
     error: (jqXHR, textStatus, errorThrown) ->
@@ -408,3 +401,13 @@ $(document).ready ->
           $('#oauth_access_warning').append $('<a>').attr('href',google_oauth_url()).append('Click here to authorize.')
           disable_collection_form()
       $('#collection_select').change()
+
+# main collection editor entry point
+$(document).ready ->
+  # merge config parameters
+  cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
+  google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
+  
+  set_access_token_cookie filter_url_params(parse_query_string())
+ 
+  build_collection_editor_from_capabilities cite_collection_editor_config['capabilities_url']
