@@ -1,7 +1,7 @@
 $(document).ready ->
   mock_access_token_params =
     access_token: 'nonsense'
-    expires_in: 3600
+    expires_in: '3600'
     token_type: 'Bearer'
 
   test "hello test", ->
@@ -123,17 +123,18 @@ $(document).ready ->
     teardown: ->
       history.replaceState(null,'',window.location.href.replace("#{location.hash}",''))
 
-  test "filter_url_params should filter off access_token, expires_in, and token_type by default", ->
+  test "filter_url_params should filter off access_token, expires_in, and token_type by default, parse_query_string should parse hash parameters", ->
     clean_url = window.location.href.replace("#{location.hash}",'')
     equal( window.location.href, clean_url, "url is clean at test start" )
     history.replaceState(null,'',"#{window.location.href}##{$.param(mock_access_token_params)}")
     equal( window.location.href, "#{clean_url}##{$.param(mock_access_token_params)}", "url gets expected parameters at test start" )
     original_params = parse_query_string()
+    deepEqual( original_params, mock_access_token_params, "parse_query_string parses hash parameters as expected" )
     filtered_params = filter_url_params(original_params)
-    equal( filtered_params, original_params, "filter_url_params returns original params" )
+    deepEqual( filtered_params, original_params, "filter_url_params returns original params" )
     equal( window.location.href, clean_url, "filter_url_params strips off expected params" )
 
-  test "filter_url_params should filter off passed in parameters", ->
+  test "filter_url_params should filter off passed in parameters, parse_query_string should parse hash parameters", ->
     clean_url = window.location.href.replace("#{location.hash}",'')
     equal( window.location.href, clean_url, "url is clean at test start" )
     collection_param =
@@ -141,6 +142,7 @@ $(document).ready ->
     history.replaceState(null,'',"#{window.location.href}##{$.param(collection_param)}")
     equal( window.location.href, "#{clean_url}##{$.param(collection_param)}", "url gets expected parameters at test start" )
     original_params = parse_query_string()
+    deepEqual( original_params, collection_param, "parse_query_string parses hash parameters as expected" )
     filtered_params = filter_url_params(original_params,['collection'])
-    equal( filtered_params, original_params, "filter_url_params returns original params" )
+    deepEqual( filtered_params, original_params, "filter_url_params returns original params" )
     equal( window.location.href, clean_url, "filter_url_params strips off expected params" )
