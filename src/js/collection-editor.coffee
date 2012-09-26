@@ -192,6 +192,20 @@ clear_collection_form = ->
       localStorage.removeItem("#{collection}:#{$(child).attr('id')}")
   $('#collection_select').change()
 
+check_table_access = (table_id) ->
+  # test table access
+  if get_cookie 'access_token'
+    $.ajax "#{FUSION_TABLES_URI}/tables/#{table_id}?access_token=#{get_cookie 'access_token'}",
+      type: 'GET'
+      dataType: 'json'
+      crossDomain: true
+      error: (jqXHR, textStatus, errorThrown) ->
+        console.log "AJAX Error: #{textStatus}"
+        $('.container > h1').after $('<div>').attr('class','alert alert-error').attr('id','collection_access_error').append('You do not have permission to access this collection.')
+        disable_collection_form()
+      success: (data) ->
+        console.log data
+
 # top-level function for building the collection form
 build_collection_form = (collection) ->
   form = $('<form>').attr('id','collection_form')
@@ -219,20 +233,8 @@ build_collection_form = (collection) ->
   form.append save_button
   form.append clear_button
 
-  # test table access
-  if get_cookie 'access_token'
-    $.ajax "#{FUSION_TABLES_URI}/tables/#{$(collection).attr('class')}?access_token=#{get_cookie 'access_token'}",
-      type: 'GET'
-      dataType: 'json'
-      crossDomain: true
-      error: (jqXHR, textStatus, errorThrown) ->
-        console.log "AJAX Error: #{textStatus}"
-        $('.container > h1').after $('<div>').attr('class','alert alert-error').attr('id','collection_access_error').append('You do not have permission to access this collection.')
-        disable_collection_form()
-      success: (data) ->
-        console.log data
-
   $('.container').append form
+  check_table_access $(collection).attr('class')
 
   # update various inputs after we've actually put the form in the DOM
   set_author_name()
