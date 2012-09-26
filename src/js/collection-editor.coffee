@@ -192,7 +192,7 @@ clear_collection_form = ->
       localStorage.removeItem("#{collection}:#{$(child).attr('id')}")
   $('#collection_select').change()
 
-check_table_access = (table_id) ->
+check_table_access = (table_id, callback) ->
   # test table access
   if get_cookie 'access_token'
     $.ajax "#{FUSION_TABLES_URI}/tables/#{table_id}?access_token=#{get_cookie 'access_token'}",
@@ -205,6 +205,8 @@ check_table_access = (table_id) ->
         disable_collection_form()
       success: (data) ->
         console.log data
+      complete: (jqXHR, textStatus) ->
+        callback() if callback?
 
 # top-level function for building the collection form
 build_collection_form = (collection) ->

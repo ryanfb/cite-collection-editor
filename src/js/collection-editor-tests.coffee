@@ -70,6 +70,43 @@ $(document).ready ->
       equal( get_cookie('access_token'), mock_access_token_params['access_token'] )
       start()
 
+  module "table access",
+    setup: ->
+      set_cookie 'access_token', 'nonsense', 3600
+    teardown: ->
+      delete_cookie 'access_token'
+      $.mockjaxClear()
+      $('.alert').remove()
+  
+  test "check_table_access should warn when table access isn't permitted", ->
+    # TODO: form disable check
+    expect(2)
+    equal( $('.alert-error').length, 0, 'no errors at start' )
+    $.mockjax
+      url: "#{FUSION_TABLES_URI}/tables/*"
+      contentType: 'text/json'
+      responseText:
+        error: "forbidden"
+      status: 403
+    stop()
+    check_table_access 'nonsense', ->
+      equal( $('.alert-error').length, 1, 'forbidden access inserts error message' )
+      start()
+
+  test "check_table_access should do nothing when table access is permitted", ->
+    expect(2)
+    equal( $('.alert-error').length, 0, 'no errors at start' )
+    $.mockjax
+      url: "#{FUSION_TABLES_URI}/tables/*"
+      contentType: 'text/json'
+      responseText:
+        tableId: "nonsense"
+      status: 200
+    stop()
+    check_table_access 'nonsense', ->
+      equal( $('.alert-error').length, 0, 'no errors after access check' )
+      start()
+
   module "author name",
     setup: ->
       set_cookie 'access_token', 'nonsense', 3600
