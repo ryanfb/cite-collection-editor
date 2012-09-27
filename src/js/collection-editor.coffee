@@ -406,12 +406,15 @@ build_collection_editor_from_capabilities = (capabilities_url) ->
           disable_collection_form()
       $('#collection_select').change()
 
+merge_config_parameters = ->
+  cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
+  google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
+  return cite_collection_editor_config
+
 # main collection editor entry point
 $(document).ready ->
   unless $('#qunit').length
-    # merge config parameters
-    cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
-    google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
+    cite_collection_editor_config = merge_config_parameters()
     
     set_access_token_cookie filter_url_params(parse_query_string())
  

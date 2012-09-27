@@ -244,3 +244,8 @@ $(document).ready ->
     filtered_params = filter_url_params(original_params,['collection'])
     deepEqual( filtered_params, original_params, "filter_url_params returns original params" )
     equal( window.location.href, clean_url, "filter_url_params strips off expected params" )
+
+  module "config parameters",
+    teardown: ->
+      delete window.cite_collection_editor_config
+      delete google_oauth_parameters_for_fusion_tables.capabilities_url
