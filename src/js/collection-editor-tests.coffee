@@ -152,6 +152,22 @@ $(document).ready ->
       equal( $('.alert-error').length, 0, 'no errors after access check' )
       start()
 
+  module "timestamp",
+    setup: ->
+      $('.container').append $('<input>').attr('id','Date')
+    teardown: ->
+      $('#Date').remove()
+
+  test "update_timestamp_inputs should update #Date", ->
+    test_start_time = new Date()
+    ok($('#Date').length, '#Date exists')
+    ok(!$('#Date').val().length, '#Date has no value before update')
+    update_timestamp_inputs()
+    ok($('#Date').val().length, '#Date has value after update')
+    constructed_date_value = new Date($('#Date').val())
+    ok(constructed_date_value >= test_start_time, 'constructed date value is at or after test start time')
+    ok(constructed_date_value <= (new Date()), 'constructed date value is before or at current time')
+
   module "author name",
     setup: ->
       set_cookie 'access_token', 'nonsense', 3600
