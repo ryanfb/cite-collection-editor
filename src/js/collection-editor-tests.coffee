@@ -248,4 +248,16 @@ $(document).ready ->
   module "config parameters",
     teardown: ->
       delete window.cite_collection_editor_config
-      delete google_oauth_parameters_for_fusion_tables.capabilities_url
+      delete google_oauth_parameters_for_fusion_tables.client_id
+
+  test "merge_config_parameters should use window.cite_collection_editor_config to overwrite default config values", ->
+    original_config_parameters = merge_config_parameters()
+    deepEqual(original_config_parameters, default_cite_collection_editor_config, 'original parameters equal default parameters')
+    equal(google_oauth_parameters_for_fusion_tables['client_id'], default_cite_collection_editor_config['google_client_id'], 'OAuth parameters equal default parameters')
+    window.cite_collection_editor_config = {}
+    window.cite_collection_editor_config['google_client_id'] = 'nonsense'
+    window.cite_collection_editor_config['capabilities_url'] = 'nonsense.xml'
+    modified_config_parameters = merge_config_parameters()
+    equal(modified_config_parameters['google_client_id'],'nonsense','google_client_id key overwritten')
+    equal(modified_config_parameters['capabilities_url'],'nonsense.xml','capabilities_url key overwritten')
+    equal(google_oauth_parameters_for_fusion_tables['client_id'], 'nonsense', 'OAuth parameters equal modified parameters')
