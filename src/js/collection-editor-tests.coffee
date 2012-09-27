@@ -7,9 +7,54 @@ $(document).ready ->
   test "hello test", ->
     ok( 1 == 1, "Passed!" )
 
+  module "URN construction",
+    setup: ->
+      $('.container').append $('<select>').attr('id','collection_select').append($('<option>').attr('selected','selected').attr('value','nonsense'))
+      $('.container').append $('<input>').attr('id','namespaceMapping').attr('value','namespace')
+      $('.container').append $('<input>').attr('id','collection_name').attr('value','collection')
+    teardown: ->
+      $('#collection_select').remove()
+      $('#namespaceMapping').remove()
+      $('#collection_name').remove()
+      $.mockjaxClear()
+
   test "URN construction", ->
     equal( cite_urn('namespace','collection','row'), 'urn:cite:namespace:collection.row' )
     equal( cite_urn('namespace','collection','row','version'), 'urn:cite:namespace:collection.row.version' )
+
+  test "construct_latest_urn constructs expected URN for populated tables", ->
+    expect(2)
+    $.mockjax
+      url: "#{FUSION_TABLES_URI}/query?*"
+      contentType: 'text/json'
+      responseText:
+        rows: [1, 2, 3]
+    stop()
+    construct_latest_urn (constructed_urn) ->
+      equal( constructed_urn, 'urn:cite:namespace:collection.4.1', 'constructed URN has expected row and version' )
+      start()
+    $.mockjaxClear()
+    $.mockjax
+      url: "#{FUSION_TABLES_URI}/query?*"
+      contentType: 'text/json'
+      responseText:
+        rows: ['a', 'b', 'c', 'd']
+    stop()
+    construct_latest_urn (constructed_urn) ->
+      equal( constructed_urn, 'urn:cite:namespace:collection.5.1', 'constructed URN has expected row and version' )
+      start()
+
+  test "construct_latest_urn constructs expected URN for unpopulated tables", ->
+    expect(1)
+    $.mockjax
+      url: "#{FUSION_TABLES_URI}/query?*"
+      contentType: 'text/json'
+      responseText:
+        columns: []
+    stop()
+    construct_latest_urn (constructed_urn) ->
+      equal( constructed_urn, 'urn:cite:namespace:collection.1.1', 'constructed URN has expected row and version' )
+      start()
 
   module "cookie functions"
 
