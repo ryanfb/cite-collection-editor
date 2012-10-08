@@ -192,6 +192,22 @@ clear_collection_form = ->
       localStorage.removeItem("#{collection}:#{$(child).attr('id')}")
   $('#collection_select').change()
 
+check_table_access = (table_id, callback) ->
+  # test table access
+  if get_cookie 'access_token'
+    $.ajax "#{FUSION_TABLES_URI}/tables/#{table_id}?access_token=#{get_cookie 'access_token'}",
+      type: 'GET'
+      dataType: 'json'
+      crossDomain: true
+      error: (jqXHR, textStatus, errorThrown) ->
+        console.log "AJAX Error: #{textStatus}"
+        $('.container > h1').after $('<div>').attr('class','alert alert-error').attr('id','collection_access_error').append('You do not have permission to access this collection.')
+        disable_collection_form()
+      success: (data) ->
+        console.log data
+      complete: (jqXHR, textStatus) ->
+        callback() if callback?
+
 # top-level function for building the collection form
 build_collection_form = (collection) ->
   form = $('<form>').attr('id','collection_form')
@@ -219,20 +235,8 @@ build_collection_form = (collection) ->
   form.append save_button
   form.append clear_button
 
-  # test table access
-  if get_cookie 'access_token'
-    $.ajax "#{FUSION_TABLES_URI}/tables/#{$(collection).attr('class')}?access_token=#{get_cookie 'access_token'}",
-      type: 'GET'
-      dataType: 'json'
-      crossDomain: true
-      error: (jqXHR, textStatus, errorThrown) ->
-        console.log "AJAX Error: #{textStatus}"
-        $('h1').after $('<div>').attr('class','alert alert-error').attr('id','collection_access_error').append('You do not have permission to access this collection.')
-        disable_collection_form()
-      success: (data) ->
-        console.log data
-
   $('.container').append form
+  check_table_access $(collection).attr('class')
 
   # update various inputs after we've actually put the form in the DOM
   set_author_name()
@@ -256,7 +260,7 @@ build_collection_form = (collection) ->
         clippy $(property).attr('name')
 
 # set the author name using Google profile information
-set_author_name = ->
+set_author_name = (callback) ->
   if get_cookie 'author_name'
     $('#Author').attr('value',get_cookie 'author_name')
   else if get_cookie 'access_token'
@@ -266,10 +270,12 @@ set_author_name = ->
       crossDomain: true
       error: (jqXHR, textStatus, errorThrown) ->
         console.log "AJAX Error: #{textStatus}"
-        # $('h1').after $('<div>').attr('class','alert alert-warning').append('Error retrieving profile info.')
+        # $('.container > h1').after $('<div>').attr('class','alert alert-warning').append('Error retrieving profile info.')
       success: (data) ->
         set_cookie('author_name',data['name'],3600)
         $('#Author').attr('value',data['name'])
+      complete: (jqXHR, textStatus) ->
+        callback() if callback?
 
 # parse URL hash parameters into an associative array object
 parse_query_string = (query_string) ->
@@ -304,6 +310,9 @@ set_cookie = (key, value, expires_in) ->
   cookie += "path=#{window.location.pathname.substring(0,window.location.pathname.lastIndexOf('/')+1)}"
   document.cookie = cookie
 
+delete_cookie = (key) ->
+  set_cookie key, null, -1
+
 get_cookie = (key) ->
   key += "="
   for cookie_fragment in document.cookie.split(';')
@@ -312,7 +321,7 @@ get_cookie = (key) ->
   return null
 
 # write a Google OAuth access token into a cached cookie that should expire when the access token does
-set_access_token_cookie = (params) ->
+set_access_token_cookie = (params, callback) ->
   if params['access_token']?
     # validate the token per https://developers.google.com/accounts/docs/OAuth2UserAgent#validatetoken
     $.ajax "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=#{params['access_token']}",
@@ -324,6 +333,8 @@ set_access_token_cookie = (params) ->
       success: (data) ->
         set_cookie('access_token',params['access_token'],params['expires_in'])
         $('#collection_select').change()
+      complete: (jqXHR, textStatus) ->
+        callback() if callback?
 
 # construct a clippy element to replace the given placeholder id
 clippy = (id) ->
@@ -356,20 +367,13 @@ push_selected_collection = ->
     window.location.href + new_hash
   history.pushState(null,$(selected).text(),new_url)
 
-# main collection editor entry point
-$(document).ready ->
-  # merge config parameters
-  cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
-  google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
-  
-  set_access_token_cookie filter_url_params(parse_query_string())
- 
-  $.ajax cite_collection_editor_config['capabilities_url'],
+build_collection_editor_from_capabilities = (capabilities_url) ->
+  $.ajax capabilities_url,
     type: 'GET'
     dataType: 'xml'
     error: (jqXHR, textStatus, errorThrown) ->
       console.log "AJAX Error: #{textStatus}"
-      $('h1').after $('<div>').attr('class','alert alert-error').append("Error loading the collection capabilities URL \"#{cite_collection_editor_config['capabilities_url']}\".")
+      $('.container > h1').after $('<div>').attr('class','alert alert-error').append("Error loading the collection capabilities URL \"#{cite_collection_editor_config['capabilities_url']}\".")
     success: (data) ->
       collections = $(data).find('citeCollection')
       select = $('<select>')
@@ -397,7 +401,21 @@ $(document).ready ->
         build_collection_form selected_collection
         load_collection_form()
         unless get_cookie 'access_token'
-          $('h1').after $('<div>').attr('class','alert alert-warning').attr('id','oauth_access_warning').append('You have not authorized this application to access your Google Fusion Tables. ')
+          $('.container > h1').after $('<div>').attr('class','alert alert-warning').attr('id','oauth_access_warning').append('You have not authorized this application to access your Google Fusion Tables. ')
           $('#oauth_access_warning').append $('<a>').attr('href',google_oauth_url()).append('Click here to authorize.')
           disable_collection_form()
       $('#collection_select').change()
+
+merge_config_parameters = ->
+  cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
+  google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
+  return cite_collection_editor_config
+
+# main collection editor entry point
+$(document).ready ->
+  unless $('#qunit').length
+    cite_collection_editor_config = merge_config_parameters()
+    
+    set_access_token_cookie filter_url_params(parse_query_string())
+ 
+    build_collection_editor_from_capabilities cite_collection_editor_config['capabilities_url']

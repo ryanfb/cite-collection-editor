@@ -17,7 +17,7 @@ task compileCoffee(type: CoffeeScriptCompile) {
 task filter(type: Copy) {
   from 'src'
   into "${buildDir.path}"
-  include "**/*.html"
+  include "index.html"
   expand(gradle.properties)
   filter(ReplaceTokens, tokens: [google_client_id: google_client_id, capabilities_url: capabilities_url])
 }
@@ -25,13 +25,16 @@ task filter(type: Copy) {
 task copy(type: Copy) {
   from 'src'
   into "${buildDir.path}"
+  include "**/*.html"
   include "**/*.js"
+  include "**/*.coffee"
   include "**/*.css"
   include "**/*.xml"
   include "**/*.rng"
   include "**/*.png"
   include "**/*.swf"
-  exclude "src/js/collection-editor.js"
+  exclude "index.html"
+  exclude "js/collection-editor.js"
 }
 
 task build {

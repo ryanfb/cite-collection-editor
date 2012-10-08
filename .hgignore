@@ -1,3 +1,4 @@
 src/js/collection-editor.js
+src/js/collection-editor-tests.js
 build
 gradle.properties
