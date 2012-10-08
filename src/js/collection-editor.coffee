@@ -32,7 +32,7 @@ build_input_for_valuelist = (valuelist) ->
   return select
 
 update_timestamp_inputs = ->
-  $('#Date').attr('value',(new Date).toISOString())
+  $('input[type=timestamp]').attr('value',(new Date).toISOString())
 
 build_input_for_property = (property) ->
   input = switch $(property).attr('type')
@@ -48,7 +48,7 @@ build_input_for_property = (property) ->
       pagedown_container.append $('<label>').append('Preview:')
       pagedown_container.append pagedown_preview
       pagedown_container
-    when 'string'
+    when 'string', 'datetime'
       if $(property).find('valueList').length > 0
         build_input_for_valuelist $(property).find('valueList')[0]
       else
@@ -59,8 +59,8 @@ build_input_for_property = (property) ->
         $('<input>').attr('style','width:100%').prop('disabled',true)
       else
         $('<input>').attr('style','width:100%')
-    when 'datetime'
-      $('<input>').attr('style','width:50%').attr('type','datetime').prop('disabled',true).attr('style','display:block')
+    when 'timestamp'
+      $('<input>').attr('style','width:50%').attr('type','timestamp').prop('disabled',true).attr('style','display:block')
     else
       console.log 'Error: unknown type'
       $('<input>')
