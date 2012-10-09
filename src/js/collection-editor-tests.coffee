@@ -154,17 +154,17 @@ $(document).ready ->
 
   module "timestamp",
     setup: ->
-      $('.container').append $('<input>').attr('type','timestamp')
+      $('.container').append $('<input>').attr('data-type','timestamp')
     teardown: ->
-      $('input[type=timestamp]').remove()
+      $('input[data-type=timestamp]').remove()
 
-  test "update_timestamp_inputs should update input[type=timestamp]", ->
+  test "update_timestamp_inputs should update input[data-type=timestamp]", ->
     test_start_time = new Date()
-    ok($('input[type=timestamp]').length, 'timestamp exists')
-    ok(!$('input[type=timestamp]').val().length, 'timestamp has no value before update')
+    ok($('input[data-type=timestamp]').length, 'timestamp exists')
+    ok(!$('input[data-type=timestamp]').val().length, 'timestamp has no value before update')
     update_timestamp_inputs()
-    ok($('input[type=timestamp]').val().length, 'timestamp has value after update')
-    constructed_date_value = new Date($('input[type=timestamp]').val())
+    ok($('input[data-type=timestamp]').val().length, 'timestamp has value after update')
+    constructed_date_value = new Date($('input[data-type=timestamp]').val())
     ok(constructed_date_value >= test_start_time, 'constructed date value is at or after test start time')
     ok(constructed_date_value <= (new Date()), 'constructed date value is before or at current time')
 
@@ -172,22 +172,22 @@ $(document).ready ->
     setup: ->
       set_cookie 'access_token', 'nonsense', 3600
       delete_cookie 'author_name'
-      $('.container').append $('<input>').attr('id','Author').attr('value','')
+      $('.container').append $('<input>').attr('data-type','authuser').attr('value','')
     teardown: ->
       delete_cookie 'access_token'
       delete_cookie 'author_name'
-      $('#Author').remove()
+      $('input[data-type=authuser]').remove()
       $.mockjaxClear()
 
   test "set_author_name should pull from cookie when available", ->
-    equal( $('#Author').attr('value'), '', 'author empty at start')
+    equal( $('input[data-type=authuser]').attr('value'), '', 'author empty at start')
     set_cookie 'author_name', 'Test User', 60
     set_author_name()
-    equal( $('#Author').attr('value'), 'Test User', 'author set')
+    equal( $('input[data-type=authuser]').attr('value'), 'Test User', 'author set')
 
   test "set_author_name with a successful AJAX call should set the cookie and populate the UI", ->
     expect(3)
-    equal( $('#Author').attr('value'), '', 'author empty at start')
+    equal( $('input[data-type=authuser]').attr('value'), '', 'author empty at start')
     $.mockjax
       url: 'https://www.googleapis.com/oauth2/v1/userinfo?*'
       contentType: 'text/json'
@@ -197,12 +197,12 @@ $(document).ready ->
     stop()
     set_author_name ->
       equal( get_cookie('author_name'), 'AJAX User' )
-      equal( $('#Author').attr('value'), 'AJAX User' )
+      equal( $('input[data-type=authuser]').attr('value'), 'AJAX User' )
       start()
 
   test "set_author_name with an unsuccessful AJAX call should do nothing", ->
     expect(3)
-    equal( $('#Author').attr('value'), '', 'author empty at start')
+    equal( $('input[data-type=authuser]').attr('value'), '', 'author empty at start')
     $.mockjax
       url: 'https://www.googleapis.com/oauth2/v1/userinfo?*'
       contentType: 'text/json'
@@ -212,7 +212,7 @@ $(document).ready ->
     stop()
     set_author_name ->
       equal( get_cookie('author_name'), null )
-      equal( $('#Author').attr('value'), '' )
+      equal( $('input[data-type=authuser]').attr('value'), '' )
       start()
 
   module "filter url",

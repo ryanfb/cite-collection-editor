@@ -32,7 +32,7 @@ build_input_for_valuelist = (valuelist) ->
   return select
 
 update_timestamp_inputs = ->
-  $('input[type=timestamp]').attr('value',(new Date).toISOString())
+  $('input[data-type=timestamp]').attr('value',(new Date).toISOString())
 
 build_input_for_property = (property) ->
   input = switch $(property).attr('type')
@@ -48,7 +48,7 @@ build_input_for_property = (property) ->
       pagedown_container.append $('<label>').append('Preview:')
       pagedown_container.append pagedown_preview
       pagedown_container
-    when 'string', 'datetime'
+    when 'string', 'datetime', 'authuser'
       if $(property).find('valueList').length > 0
         build_input_for_valuelist $(property).find('valueList')[0]
       else
@@ -65,6 +65,7 @@ build_input_for_property = (property) ->
       console.log 'Error: unknown type'
       $('<input>')
   $(input).attr('id',$(property).attr('name'))
+  $(input).attr('data-type',$(property).attr('type'))
 
 add_property_to_form = (property, form) ->
   form.append $('<br>')
@@ -262,7 +263,8 @@ build_collection_form = (collection) ->
 # set the author name using Google profile information
 set_author_name = (callback) ->
   if get_cookie 'author_name'
-    $('#Author').attr('value',get_cookie 'author_name')
+    $('input[data-type=authuser]').attr('value',get_cookie 'author_name')
+    $('input[data-type=authuser]').prop('disabled',true)
   else if get_cookie 'access_token'
     $.ajax "https://www.googleapis.com/oauth2/v1/userinfo?access_token=#{get_cookie 'access_token'}",
       type: 'GET'
@@ -273,7 +275,8 @@ set_author_name = (callback) ->
         # $('.container > h1').after $('<div>').attr('class','alert alert-warning').append('Error retrieving profile info.')
       success: (data) ->
         set_cookie('author_name',data['name'],3600)
-        $('#Author').attr('value',data['name'])
+        $('input[data-type=authuser]').attr('value',data['name'])
+        $('input[data-type=authuser]').prop('disabled',true)
       complete: (jqXHR, textStatus) ->
         callback() if callback?
 
