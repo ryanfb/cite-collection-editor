@@ -55,8 +55,8 @@ build_input_for_property = (property) ->
         $('<input>').attr('style','width:100%;display:block')
     when 'citeurn', 'citeimg', 'ctsurn'
       # for the special case of the "URN" field, we want to construct the value
-      if $(property).attr('name') == 'URN'
-        $('<input>').attr('style','width:100%').prop('disabled',true)
+      if $(property).attr('name') == $(property).parent().attr('canonicalId')
+        $('<input>').attr('style','width:100%').attr('data-urn','true').prop('disabled',true)
       else
         $('<input>').attr('style','width:100%')
     when 'timestamp'
@@ -157,7 +157,7 @@ submit_collection_form = ->
   # the main body of the submission is in an anonymous callback function that gets the URN,
   # this is so we hopefully have the latest URN possible
   construct_latest_urn (urn) =>
-    $('#URN').attr('value',urn)
+    $('input[data-urn=true]').attr('value',urn)
     update_timestamp_inputs()
     for child in $('#collection_form').children()
       if $(child).attr('id') && ($(child).attr('type') != 'hidden') && !$(child).attr('id').match(/-clippy$/)
@@ -242,7 +242,7 @@ build_collection_form = (collection) ->
   # update various inputs after we've actually put the form in the DOM
   set_author_name()
   construct_latest_urn (urn) ->
-    $('#URN').attr('value',urn)
+    $('input[data-urn=true]').attr('value',urn)
   update_timestamp_inputs()
 
   # create the Markdown/Pagedown preview after we've put the form in the DOM
