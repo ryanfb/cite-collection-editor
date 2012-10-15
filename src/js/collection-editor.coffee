@@ -48,11 +48,13 @@ build_input_for_property = (property) ->
       pagedown_container.append $('<label>').append('Preview:')
       pagedown_container.append pagedown_preview
       pagedown_container
-    when 'string', 'datetime', 'authuser'
+    when 'string'
       if $(property).find('valueList').length > 0
         build_input_for_valuelist $(property).find('valueList')[0]
       else
-        $('<input>').attr('style','width:100%;display:block')
+        $('<textarea>').attr('style','width:100%').attr('rows','1')
+    when 'datetime', 'authuser'
+      $('<input>').attr('style','width:100%;display:block')
     when 'citeurn', 'citeimg', 'ctsurn'
       # for the special case of the "URN" field, we want to construct the value
       if $(property).attr('name') == $(property).parent().attr('canonicalId')
@@ -259,6 +261,9 @@ build_collection_form = (collection) ->
         clippy "wmd-input-#{$(property).attr('name')}"
       else
         clippy $(property).attr('name')
+
+  # set textareas to autosize
+  $('textarea').autosize()
 
 # set the author name using Google profile information
 set_author_name = (callback) ->
