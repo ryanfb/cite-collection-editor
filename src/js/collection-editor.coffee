@@ -415,6 +415,9 @@ build_collection_editor_from_capabilities = (capabilities_url) ->
       $('#collection_select').change()
 
 merge_config_parameters = ->
+  if window.FUSION_TABLES_URI?
+    FUSION_TABLES_URI = window.FUSION_TABLES_URI
+
   cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
   google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
   return cite_collection_editor_config
