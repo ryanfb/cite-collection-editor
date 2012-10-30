@@ -7,7 +7,7 @@ default_cite_collection_editor_config =
 google_oauth_parameters_for_fusion_tables =
   response_type: 'token'
   redirect_uri: window.location.href.replace("#{location.hash}",'')
-  scope: 'https://www.googleapis.com/auth/fusiontables https://www.googleapis.com/auth/userinfo.profile'
+  scope: 'https://www.googleapis.com/auth/fusiontables https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email'
   approval_prompt: 'auto'
 
 google_oauth_url = ->
