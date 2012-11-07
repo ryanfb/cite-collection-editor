@@ -123,12 +123,27 @@ get_value_for_form_input = (element) ->
 # takes a callback function which gets passed the resulting URN
 construct_latest_urn = (callback) ->
   collection = $('#collection_select').val()
-  fusion_tables_query "SELECT ROWID FROM #{collection}", (data) =>
-    console.log data
-    last_available = if data['rows']? then data['rows'].length + 1 else 1
-    latest_urn = cite_urn($('#namespaceMapping').attr('value'),$('#collection_name').attr('value'),last_available,1)
-    console.log "Latest URN: #{latest_urn}"
-    callback(latest_urn)
+  urn_input = $('input[data-urn=true]')
+  if parse_query_string()[urn_input.attr('id')]?
+    urn_prefix = parse_query_string()[urn_input.attr('id')].split('.').slice(0,-1).join('.')
+    fusion_tables_query "SELECT COUNT() FROM #{collection} WHERE '#{urn_input.attr('id')}' STARTS WITH '#{urn_prefix}'", (data) =>
+      console.log data
+      if data['rows']?
+        existing_versions = parseInt(data['rows'][0][0])
+        latest_urn = "#{urn_prefix}.#{existing_versions + 1}"
+        console.log "Latest URN: #{latest_urn}"
+        callback(latest_urn)
+      else # invalid URN passed in, strip and retry
+        console.log "No existing versions for passed URN, constructing latest URN from scratch"
+        filter_url_params(parse_query_string(),[urn_input.attr('id')])
+        construct_latest_urn(callback)
+  else
+    fusion_tables_query "SELECT ROWID FROM #{collection}", (data) =>
+      console.log data
+      last_available = if data['rows']? then data['rows'].length + 1 else 1
+      latest_urn = cite_urn($('#namespaceMapping').attr('value'),$('#collection_name').attr('value'),last_available,1)
+      console.log "Latest URN: #{latest_urn}"
+      callback(latest_urn)
 
 scroll_to_bottom = ->
   $('html, body').animate({scrollTop: $(document).height()-$(window).height()},600,'linear')
@@ -177,7 +192,7 @@ load_collection_form = ->
   collection = $('#collection_select').val()
   for child in $('#collection_form').children()
     if $(child).attr('id')?
-      if parse_query_string()[$(child).attr('id')]?
+      if (parse_query_string()[$(child).attr('id')]?) && ($(child).attr('id') != $('input[data-urn=true]').attr('id'))
         $(child).val(parse_query_string()[$(child).attr('id')])
         filter_url_params(parse_query_string(),[$(child).attr('id')])
       else if localStorage["#{collection}:#{$(child).attr('id')}"]?
