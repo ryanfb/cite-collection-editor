@@ -202,6 +202,7 @@ submit_collection_form = ->
         column_names.push fusion_tables_escape($(child).attr('id'))
         row_values.push fusion_tables_escape(get_value_for_form_input(child))
     fusion_tables_query "INSERT INTO #{collection} (#{column_names.join(', ')}) VALUES (#{row_values.join(', ')})", (data) ->
+      filter_url_params(parse_query_string(),[$('input[data-urn=true]').attr('id')])
       clear_collection_form()
       $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','submit_success').append('Submitted.')
       scroll_to_bottom()
