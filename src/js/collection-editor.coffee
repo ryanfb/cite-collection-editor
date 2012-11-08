@@ -138,6 +138,12 @@ construct_latest_urn = (callback) ->
           existing_versions = parseInt(data['rows'][0][0])
           latest_urn = "#{urn_prefix_matches[1]}.#{existing_versions + 1}"
           console.log "Latest URN: #{latest_urn}"
+          loaded_urn = urn_prefix_matches[1]
+          if (urn_prefix_matches[2]?) && (parseInt(urn_prefix_matches[2].substring(1)) <= existing_versions)
+            loaded_urn += urn_prefix_matches[2]
+          else
+            loaded_urn += ".#{existing_versions}"
+          console.log "Loading data from: #{loaded_urn}"
           callback(latest_urn)
         else # invalid URN passed in, strip and retry
           console.log "No existing versions for passed URN, constructing latest URN from scratch"
