@@ -171,6 +171,9 @@ save_collection_form = ->
   for child in $('#collection_form').children()
     if $(child).attr('id') && !$(child).prop('disabled') && ($(child).attr('type') != 'hidden')
       localStorage["#{collection}:#{$(child).attr('id')}"] = get_value_for_form_input(child)
+    else if ($(child).attr('id') == $('input[data-urn=true]').attr('id')) && (parse_query_string()[$(child).attr('id')]?)
+      # save the passed URN
+      localStorage["#{collection}:#{$(child).attr('id')}"] = parse_query_string()[$(child).attr('id')]
   $('#collection_form').after $('<div>').attr('class','alert alert-success').attr('id','save_success').append('Saved.')
   scroll_to_bottom()
   $('#save_success').fadeOut 1800, ->
@@ -214,6 +217,9 @@ load_collection_form = ->
       else if localStorage["#{collection}:#{$(child).attr('id')}"]?
         if $(child).attr('class') == 'pagedown_container'
           $(child).find('.wmd-input').val(localStorage["#{collection}:#{$(child).attr('id')}"])
+        else if $(child).attr('id') == $('input[data-urn=true]').attr('id')
+          # push URN into hash parameters
+          history.replaceState(null,'',window.location.href.replace("#{location.hash}","#{location.hash}&#{$(child).attr('id')}=#{localStorage["#{collection}:#{$(child).attr('id')}"]}"))
         else
           $(child).val(localStorage["#{collection}:#{$(child).attr('id')}"])
 
@@ -273,6 +279,7 @@ build_collection_form = (collection) ->
   check_table_access $(collection).attr('class')
 
   # update various inputs after we've actually put the form in the DOM
+  load_collection_form()
   set_author_name()
   construct_latest_urn (urn) ->
     $('input[data-urn=true]').attr('value',urn)
@@ -438,7 +445,6 @@ build_collection_editor_from_capabilities = (capabilities_url) ->
         push_selected_collection()
 
         build_collection_form selected_collection
-        load_collection_form()
         unless get_cookie 'access_token'
           $('.container > h1').after $('<div>').attr('class','alert alert-warning').attr('id','oauth_access_warning').append('You have not authorized this application to access your Google Fusion Tables. ')
           $('#oauth_access_warning').append $('<a>').attr('href',google_oauth_url()).append('Click here to authorize.')
