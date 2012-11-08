@@ -20,6 +20,8 @@ cite_urn = (namespace, collection, row, version) ->
     urn += ".#{version}"
   return urn
 
+pagedown_editors = {}
+
 disable_collection_form = ->
   $('#collection_form').children().prop('disabled',true)
   $('.wmd-input').prop('disabled',true)
@@ -143,7 +145,7 @@ construct_latest_urn = (callback) ->
             loaded_urn += urn_prefix_matches[2]
           else
             loaded_urn += ".#{existing_versions}"
-          console.log "Loading data from: #{loaded_urn}"
+          load_collection_form_from_urn(loaded_urn)
           callback(latest_urn)
         else # invalid URN passed in, strip and retry
           console.log "No existing versions for passed URN, constructing latest URN from scratch"
@@ -223,6 +225,25 @@ load_collection_form = ->
         else
           $(child).val(localStorage["#{collection}:#{$(child).attr('id')}"])
 
+# populate collection form values from a given URN
+load_collection_form_from_urn = (loaded_urn) ->
+  collection = $('#collection_select').val()
+  # don't clobber saved/loaded data
+  unless localStorage["#{collection}:#{$('input[data-urn=true]').attr('id')}"]?
+    console.log "Loading data from: #{loaded_urn}"
+    fusion_tables_query "SELECT * FROM #{collection} WHERE '#{$('input[data-urn=true]').attr('id')}' = '#{loaded_urn}'", (data) ->
+      console.log "Existing data:"
+      console.log data
+      for header, i in data['columns']
+        unless $("##{header}").prop('disabled')
+          console.log "Setting #{header} to #{data['rows'][0][i]}"
+          if $("##{header}").attr('class') == 'pagedown_container'
+            $("#wmd-input-#{header}").val(data['rows'][0][i])
+            if pagedown_editors[header]?
+              pagedown_editors[header].refreshPreview()
+          else
+            $("##{header}").val(data['rows'][0][i])
+
 # remove form values from localStorage and reset the form
 clear_collection_form = ->
   collection = $('#collection_select').val()
@@ -289,8 +310,8 @@ build_collection_form = (collection) ->
   converter = new Markdown.Converter()
   for suffix in $(".pagedown_suffix")
     console.log "Running Markdown editor for: #{$(suffix).val()}"
-    editor = new Markdown.Editor(converter,"-#{$(suffix).val()}")
-    editor.run()
+    pagedown_editors[$(suffix).val()] = new Markdown.Editor(converter,"-#{$(suffix).val()}")
+    pagedown_editors[$(suffix).val()].run()
 
   # if we have Flash, put clippy helpers on all the inputs
   if swfobject.hasFlashPlayerVersion('9')
