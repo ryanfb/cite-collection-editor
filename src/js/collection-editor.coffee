@@ -124,19 +124,29 @@ get_value_for_form_input = (element) ->
 construct_latest_urn = (callback) ->
   collection = $('#collection_select').val()
   urn_input = $('input[data-urn=true]')
-  if parse_query_string()[urn_input.attr('id')]?
-    urn_prefix = parse_query_string()[urn_input.attr('id')].split('.').slice(0,-1).join('.')
-    fusion_tables_query "SELECT COUNT() FROM #{collection} WHERE '#{urn_input.attr('id')}' STARTS WITH '#{urn_prefix}'", (data) =>
-      console.log data
-      if data['rows']?
-        existing_versions = parseInt(data['rows'][0][0])
-        latest_urn = "#{urn_prefix}.#{existing_versions + 1}"
-        console.log "Latest URN: #{latest_urn}"
-        callback(latest_urn)
-      else # invalid URN passed in, strip and retry
-        console.log "No existing versions for passed URN, constructing latest URN from scratch"
-        filter_url_params(parse_query_string(),[urn_input.attr('id')])
-        construct_latest_urn(callback)
+  urn_query_value = parse_query_string()[urn_input.attr('id')]
+  if urn_query_value?
+    cite_urn_prefix = cite_urn($('#namespaceMapping').attr('value'),$('#collection_name').attr('value'),'\\d+')
+    urn_prefix_regex = new RegExp("^(#{cite_urn_prefix.replace('.','\\.')})(\\.\\d+)?$")
+    console.log urn_prefix_regex
+    urn_prefix_matches = urn_prefix_regex.exec(urn_query_value)
+    console.log urn_prefix_matches
+    if urn_prefix_matches?
+      fusion_tables_query "SELECT COUNT() FROM #{collection} WHERE '#{urn_input.attr('id')}' STARTS WITH '#{urn_prefix_matches[1]}.'", (data) =>
+        console.log data
+        if data['rows']?
+          existing_versions = parseInt(data['rows'][0][0])
+          latest_urn = "#{urn_prefix_matches[1]}.#{existing_versions + 1}"
+          console.log "Latest URN: #{latest_urn}"
+          callback(latest_urn)
+        else # invalid URN passed in, strip and retry
+          console.log "No existing versions for passed URN, constructing latest URN from scratch"
+          filter_url_params(parse_query_string(),[urn_input.attr('id')])
+          construct_latest_urn(callback)
+    else # invalid URN passed in, strip and retry
+      console.log "Passed URN invalid, constructing latest URN from scratch"
+      filter_url_params(parse_query_string(),[urn_input.attr('id')])
+      construct_latest_urn(callback)
   else
     fusion_tables_query "SELECT ROWID FROM #{collection}", (data) =>
       console.log data
