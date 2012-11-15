@@ -421,13 +421,13 @@ clippy = (id) ->
 # use hash parameters to set the selected collection
 set_selected_collection_from_hash_parameters = ->
   if parse_query_string()['collection']?
-    $("option[value=#{parse_query_string()['collection']}]").attr('selected','selected')
+    $("option[data-name=#{parse_query_string()['collection']}]").attr('selected','selected')
     $('#collection_select').change()
 
 # push the selected collection into history with the collection as a hash parameter
 push_selected_collection = ->
   selected = $('#collection_select option:selected')[0]
-  new_hash = "#collection=#{$(selected).attr('value')}"
+  new_hash = "#collection=#{$(selected).attr('data-name')}"
   filter_url_params(parse_query_string(),['collection'])
   new_url = if location.hash.length > 0
     window.location.href.replace("#{location.hash}","#{new_hash}&#{location.hash.substring(1)}")
@@ -445,7 +445,7 @@ build_collection_editor_from_capabilities = (capabilities_url) ->
     success: (data) ->
       collections = $(data).find('citeCollection')
       select = $('<select>')
-      select.append $('<option>').attr('value',$(collection).attr('class')).append($(collection).attr('description')) for collection in collections
+      select.append $('<option>').attr('value',$(collection).attr('class')).attr('data-name',$(collection).attr('name')).append($(collection).attr('description')) for collection in collections
       $(select).attr('id','collection_select')
       $(select).attr('style','width:100%')
       $('.container').append select
