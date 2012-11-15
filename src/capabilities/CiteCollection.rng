@@ -56,6 +56,8 @@
                                     <value>ctsurn</value>
                                     <value>citeimg</value>
                                     <value>markdown</value>
+                                    <value>timestamp</value>
+                                    <value>authuser</value>
                                 </choice>
                             </attribute>
                             <optional>
