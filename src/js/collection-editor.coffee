@@ -156,9 +156,9 @@ construct_latest_urn = (callback) ->
       filter_url_params(parse_query_string(),[urn_input.attr('id')])
       construct_latest_urn(callback)
   else
-    fusion_tables_query "SELECT ROWID FROM #{collection}", (data) =>
+    fusion_tables_query "SELECT COUNT() FROM #{collection}", (data) =>
       console.log data
-      last_available = if data['rows']? then data['rows'].length + 1 else 1
+      last_available = if data['rows']? then parseInt(data['rows'][0][0]) + 1 else 1
       latest_urn = cite_urn($('#namespaceMapping').attr('value'),$('#collection_name').attr('value'),last_available,1)
       console.log "Latest URN: #{latest_urn}"
       callback(latest_urn)

@@ -28,7 +28,7 @@ $(document).ready ->
       url: "#{FUSION_TABLES_URI}/query?*"
       contentType: 'text/json'
       responseText:
-        rows: [1, 2, 3]
+        rows: [["3"]]
     stop()
     construct_latest_urn (constructed_urn) ->
       equal( constructed_urn, 'urn:cite:namespace:collection.4.1', 'constructed URN has expected row and version' )
@@ -38,7 +38,7 @@ $(document).ready ->
       url: "#{FUSION_TABLES_URI}/query?*"
       contentType: 'text/json'
       responseText:
-        rows: ['a', 'b', 'c', 'd']
+        rows: [["4"]]
     stop()
     construct_latest_urn (constructed_urn) ->
       equal( constructed_urn, 'urn:cite:namespace:collection.5.1', 'constructed URN has expected row and version' )
