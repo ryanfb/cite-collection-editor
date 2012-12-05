@@ -194,10 +194,11 @@ $(document).ready ->
       status: 200
       responseText:
         name: 'AJAX User'
+        email: 'example@example.com'
     stop()
     set_author_name ->
-      equal( get_cookie('author_name'), 'AJAX User' )
-      equal( $('input[data-type=authuser]').attr('value'), 'AJAX User' )
+      equal( get_cookie('author_name'), 'AJAX User <example@example.com>' )
+      equal( $('input[data-type=authuser]').attr('value'), 'AJAX User <example@example.com>' )
       start()
 
   test "set_author_name with an unsuccessful AJAX call should do nothing", ->

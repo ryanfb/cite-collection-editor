@@ -339,8 +339,8 @@ set_author_name = (callback) ->
         console.log "AJAX Error: #{textStatus}"
         # $('.container > h1').after $('<div>').attr('class','alert alert-warning').append('Error retrieving profile info.')
       success: (data) ->
-        set_cookie('author_name',data['name'],3600)
-        $('input[data-type=authuser]').attr('value',data['name'])
+        set_cookie('author_name',"#{data['name']} <#{data['email']}>",3600)
+        $('input[data-type=authuser]').attr('value',get_cookie('author_name'))
         $('input[data-type=authuser]').prop('disabled',true)
       complete: (jqXHR, textStatus) ->
         callback() if callback?
