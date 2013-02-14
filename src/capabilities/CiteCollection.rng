@@ -61,6 +61,10 @@
                                 </choice>
                             </attribute>
                             <optional>
+                              <attribute
+                                name="objectPrefix"/>
+                            </optional>
+                            <optional>
                                 <element name="cite:valueList">
                                 <oneOrMore>
                                 <element name="cite:value"><text/></element>

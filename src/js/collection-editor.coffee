@@ -14,9 +14,9 @@ google_oauth_url = ->
   "https://accounts.google.com/o/oauth2/auth?#{$.param(google_oauth_parameters_for_fusion_tables)}"
 
 # construct a CITE URN with optional version
-cite_urn = (namespace, collection, row, version) ->
-  urn = "urn:cite:#{namespace}:#{collection}.#{row}"
-  if arguments.length == 4
+cite_urn = (namespace, collection, row, prefix = '', version) ->
+  urn = "urn:cite:#{namespace}:#{collection}.#{prefix}#{row}"
+  if arguments.length == 5
     urn += ".#{version}"
   return urn
 
@@ -128,7 +128,7 @@ construct_latest_urn = (callback) ->
   urn_input = $('input[data-urn=true]')
   urn_query_value = parse_query_string()[urn_input.attr('id')]
   if urn_query_value?
-    cite_urn_prefix = cite_urn($('#namespaceMapping').attr('value'),$('#collection_name').attr('value'),'\\d+')
+    cite_urn_prefix = cite_urn($('#namespaceMapping').attr('value'),$('#collection_name').attr('value'),'\\d+',$('#urn_object_prefix').attr('value'))
     urn_prefix_regex = new RegExp("^(#{cite_urn_prefix.replace('.','\\.')})(\\.\\d+)?$")
     console.log urn_prefix_regex
     urn_prefix_matches = urn_prefix_regex.exec(urn_query_value)
@@ -159,7 +159,7 @@ construct_latest_urn = (callback) ->
     fusion_tables_query "SELECT COUNT() FROM #{collection}", (data) =>
       console.log data
       last_available = if data['rows']? then parseInt(data['rows'][0][0]) + 1 else 1
-      latest_urn = cite_urn($('#namespaceMapping').attr('value'),$('#collection_name').attr('value'),last_available,1)
+      latest_urn = cite_urn($('#namespaceMapping').attr('value'),$('#collection_name').attr('value'),last_available,$('#urn_object_prefix').attr('value'),1)
       console.log "Latest URN: #{latest_urn}"
       callback(latest_urn)
 
@@ -276,6 +276,7 @@ build_collection_form = (collection) ->
   
   form.append $('<input>').attr('type','hidden').attr('id','namespaceMapping').attr('value',$(collection).find('namespaceMapping').attr('abbr'))
   form.append $('<input>').attr('type','hidden').attr('id','collection_name').attr('value',$(collection).attr('name'))
+  form.append $('<input>').attr('type','hidden').attr('id','urn_object_prefix').attr('value',$(collection).find("citeProperty[name='#{$(collection).attr('canonicalId')}']").attr('objectPrefix'))
 
   properties = $(collection).find('citeProperty')
   add_property_to_form(property,form) for property in properties

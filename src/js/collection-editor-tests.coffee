@@ -16,11 +16,14 @@ $(document).ready ->
       $('#collection_select').remove()
       $('#namespaceMapping').remove()
       $('#collection_name').remove()
+      $('#urn_object_prefix').remove()
       $.mockjaxClear()
 
   test "URN construction", ->
     equal( cite_urn('namespace','collection','row'), 'urn:cite:namespace:collection.row' )
-    equal( cite_urn('namespace','collection','row','version'), 'urn:cite:namespace:collection.row.version' )
+    equal( cite_urn('namespace','collection','row','','version'), 'urn:cite:namespace:collection.row.version' )
+    equal( cite_urn('namespace','collection','row','prefix_'), 'urn:cite:namespace:collection.prefix_row' )
+    equal( cite_urn('namespace','collection','row','prefix_','version'), 'urn:cite:namespace:collection.prefix_row.version' )
 
   test "construct_latest_urn constructs expected URN for populated tables", ->
     expect(2)
@@ -54,6 +57,42 @@ $(document).ready ->
     stop()
     construct_latest_urn (constructed_urn) ->
       equal( constructed_urn, 'urn:cite:namespace:collection.1.1', 'constructed URN has expected row and version' )
+      start()
+
+  test "construct_latest_urn constructs expected URN for populated tables with object prefix", ->
+    $('.container').append $('<input>').attr('id','urn_object_prefix').attr('value','prefix_')
+    expect(2)
+    $.mockjax
+      url: "#{FUSION_TABLES_URI}/query?*"
+      contentType: 'text/json'
+      responseText:
+        rows: [["3"]]
+    stop()
+    construct_latest_urn (constructed_urn) ->
+      equal( constructed_urn, 'urn:cite:namespace:collection.prefix_4.1', 'constructed URN has expected row and version' )
+      start()
+    $.mockjaxClear()
+    $.mockjax
+      url: "#{FUSION_TABLES_URI}/query?*"
+      contentType: 'text/json'
+      responseText:
+        rows: [["4"]]
+    stop()
+    construct_latest_urn (constructed_urn) ->
+      equal( constructed_urn, 'urn:cite:namespace:collection.prefix_5.1', 'constructed URN has expected row and version' )
+      start()
+
+  test "construct_latest_urn constructs expected URN for unpopulated tables with object prefix", ->
+    $('.container').append $('<input>').attr('id','urn_object_prefix').attr('value','prefix_')
+    expect(1)
+    $.mockjax
+      url: "#{FUSION_TABLES_URI}/query?*"
+      contentType: 'text/json'
+      responseText:
+        columns: []
+    stop()
+    construct_latest_urn (constructed_urn) ->
+      equal( constructed_urn, 'urn:cite:namespace:collection.prefix_1.1', 'constructed URN has expected row and version' )
       start()
 
   module "cookie functions"
