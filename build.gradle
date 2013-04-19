@@ -13,12 +13,12 @@ repositories {
 task compileCoffee(type: CoffeeScriptCompile) {
   source fileTree(coffeesrc)
   include "**/*.coffee"
-  destinationDir file("${buildDir.path}/js")
+  destinationDir file("${buildDir.path}/cce/js")
 }
 
 task filter(type: Copy) {
   from 'src'
-  into "${buildDir.path}"
+  into "${buildDir.path}/cce"
   include "index.html"
   expand(gradle.properties)
   filter(ReplaceTokens, tokens: [google_client_id: google_client_id, capabilities_url: capabilities_url])
