@@ -480,6 +480,11 @@ merge_config_parameters = ->
 
   cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
   google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
+  
+  if location.hash.substring(1).length
+     console.log "Setting OAuth URL parameter state: #{location.hash.substring(1)}"
+     google_oauth_parameters_for_fusion_tables['state'] = location.hash.substring(1)
+  
   return cite_collection_editor_config
 
 # main collection editor entry point
