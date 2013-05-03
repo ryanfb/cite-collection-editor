@@ -391,6 +391,9 @@ get_cookie = (key) ->
 
 # write a Google OAuth access token into a cached cookie that should expire when the access token does
 set_access_token_cookie = (params, callback) ->
+  if params['state']?
+    console.log "Replacing hash with state: #{params['state']}"
+    history.replaceState(null,'',window.location.href.replace("#{location.hash}","##{params['state']}"))
   if params['access_token']?
     # validate the token per https://developers.google.com/accounts/docs/OAuth2UserAgent#validatetoken
     $.ajax "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=#{params['access_token']}",
