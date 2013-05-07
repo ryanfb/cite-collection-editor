@@ -167,7 +167,7 @@ scroll_to_bottom = ->
   $('html, body').animate({scrollTop: $(document).height()-$(window).height()},600,'linear')
 
 # save collection form values to localStorage
-save_collection_form = ->
+@save_collection_form = save_collection_form = ->
   collection = $('#collection_select').val()
   localStorage[collection] = true
   for child in $('#collection_form').children()
@@ -281,7 +281,7 @@ build_collection_form = (collection) ->
   properties = $(collection).find('citeProperty')
   add_property_to_form(property,form) for property in properties
 
-  submit_button = $('<input>').attr('type','button').attr('value','Submit').attr('class','btn btn-primary')
+  submit_button = $('<input>').attr('type','button').attr('value','Submit').attr('class','btn btn-primary').attr('id','submit_button')
   submit_button.bind 'click', (event) =>
     submit_collection_form()
   save_button = $('<input>').attr('type','button').attr('value','Save').attr('class','btn')
@@ -325,6 +325,14 @@ build_collection_form = (collection) ->
 
   # set textareas to autosize
   $('textarea').autosize()
+
+  # set an OAuth expiration callback
+  if get_cookie 'access_token_expires_at'
+    authorization_expires_in = parseInt(get_cookie('access_token_expires_at')) - Date.now()
+    console.log "Disabling submit in #{authorization_expires_in}ms"
+    setTimeout ->
+      disable_submit()
+    , authorization_expires_in
 
 # set the author name using Google profile information
 set_author_name = (callback) ->
@@ -371,11 +379,14 @@ filter_url_params = (params, filtered_params) ->
   history.replaceState(null,'',window.location.href.replace("#{location.hash}",hash_string))
   return params
 
-set_cookie = (key, value, expires_in) ->
+expires_in_to_date = (expires_in) ->
   cookie_expires = new Date
   cookie_expires.setTime(cookie_expires.getTime() + expires_in * 1000)
+  return cookie_expires
+
+set_cookie = (key, value, expires_in) ->
   cookie = "#{key}=#{value}; "
-  cookie += "expires=#{cookie_expires.toGMTString()}; "
+  cookie += "expires=#{expires_in_to_date(expires_in).toUTCString()}; "
   cookie += "path=#{window.location.pathname.substring(0,window.location.pathname.lastIndexOf('/')+1)}"
   document.cookie = cookie
 
@@ -404,6 +415,7 @@ set_access_token_cookie = (params, callback) ->
         console.log "Access Token Validation Error: #{textStatus}"
       success: (data) ->
         set_cookie('access_token',params['access_token'],params['expires_in'])
+        set_cookie('access_token_expires_at',expires_in_to_date(params['expires_in']).getTime(),params['expires_in'])
         $('#collection_select').change()
       complete: (jqXHR, textStatus) ->
         callback() if callback?
@@ -438,6 +450,13 @@ push_selected_collection = ->
   else
     window.location.href + new_hash
   history.pushState(null,$(selected).text(),new_url)
+
+# disable the submit button with an informative dialogue if the cookie expires while editing
+disable_submit = ->
+  $('#submit_button').prop('disabled',true)
+  $('#submit_button').before $('<div>').attr('class','alert alert-warning').attr('id','oauth_expiration_warning').append('Your Google Fusion Tables authorization has expired. ')
+  $('#oauth_expiration_warning').append $('<a>').attr('href',google_oauth_url()).append('Click here to save your work and re-authorize.').attr('onclick','save_collection_form()')
+  $('#oauth_expiration_warning').append(' You will be able to submit your work upon return.')
 
 build_collection_editor_from_capabilities = (capabilities_url) ->
   $.ajax capabilities_url,
@@ -484,7 +503,7 @@ merge_config_parameters = ->
   cite_collection_editor_config = $.extend({}, default_cite_collection_editor_config, window.cite_collection_editor_config)
   google_oauth_parameters_for_fusion_tables['client_id'] = cite_collection_editor_config['google_client_id']
   
-  if location.hash.substring(1).length
+  if location.hash.substring(1).length && !(parse_query_string()['state'])
      console.log "Setting OAuth URL parameter state: #{location.hash.substring(1)}"
      google_oauth_parameters_for_fusion_tables['state'] = location.hash.substring(1)
   
