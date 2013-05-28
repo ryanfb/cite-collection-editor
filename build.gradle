@@ -3,11 +3,26 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 apply plugin: 'coffeescript-base'
 
+group = "edu.harvard.chs"
 version = '0.1.0'
 
 repositories {
   mavenCentral()
   mavenRepo name: "Gradle", url: "http://repo.gradle.org/gradle/repo"
+  maven {
+    url "http://beta.hpcc.uh.edu/nexus/content/repositories/releases"
+  }
+}
+
+configurations {
+  schemas {
+    description = 'Manage schemas'
+    transitive = true
+  }
+}
+
+dependencies {
+  schemas group: 'edu.harvard.chs', name: 'cite', version: '0.12.1', classifier: 'schemas', ext: 'zip'
 }
 
 task compileCoffee(type: CoffeeScriptCompile) {
@@ -32,11 +47,22 @@ task copy(type: Copy) {
   include "**/*.coffee"
   include "**/*.css"
   include "**/*.xml"
-  include "**/*.rng"
   include "**/*.png"
   include "**/*.swf"
   exclude "index.html"
   exclude "js/collection-editor.js"
+
+  from({zipTree(configurations.schemas.singleFile)}) {
+    into 'capabilities'
+    include 'collections/CiteCollection.rng'
+    eachFile { FileCopyDetails fcp ->
+      if (fcp.relativePath.pathString.startsWith('capabilities/collections/')) {
+        fcp.relativePath = new RelativePath(true, "capabilities", fcp.relativePath.segments[-1])
+      } else {
+        fcp.exclude()
+      }
+    }
+  }
 }
 
 task build {
