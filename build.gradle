@@ -22,7 +22,7 @@ configurations {
 }
 
 dependencies {
-  schemas group: 'edu.harvard.chs', name: 'cite', version: '0.12.1', classifier: 'schemas', ext: 'zip'
+  schemas group: 'edu.harvard.chs', name: 'cite', version: '0.12.20', classifier: 'schemas', ext: 'zip'
 }
 
 task compileCoffee(type: CoffeeScriptCompile) {
