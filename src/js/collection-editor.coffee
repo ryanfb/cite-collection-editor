@@ -198,7 +198,7 @@ submit_collection_form = ->
     $('input[data-urn=true]').attr('value',urn)
     update_timestamp_inputs()
     for child in $('#collection_form').children()
-      if $(child).attr('id') && ($(child).attr('type') != 'hidden') && !$(child).attr('id').match(/-clippy$/)
+      if $(child).attr('id') && ($(child).attr('type') != 'hidden') && !$(child).attr('id').match(/-clippy$/) && ($(child).attr('id') != 'submit_button')
         column_names.push fusion_tables_escape($(child).attr('id'))
         row_values.push fusion_tables_escape(get_value_for_form_input(child))
     fusion_tables_query "INSERT INTO #{collection} (#{column_names.join(', ')}) VALUES (#{row_values.join(', ')})", (data) ->
