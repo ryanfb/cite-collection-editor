@@ -15,8 +15,12 @@ Configuration
   * Go to the 'API Access' tab and create a client ID
   * Set the redirect URI to the HTML endpoint the JavaScript will be called from
   * Set 'JavaScript origins' to the domain the JavaScript will be hosted on
-* Create a Fusion Table with columns for the CITE properties you wish to have in your CITE collection. All columns should have type "Text", except any `datetime` properties which can have type "Date/Time".
-* Copy or edit `src/capabilities/testedit-capabilities.xml` to reflect your CITE collection(s) and properties. The `class` attribute of a `<citeCollection>` should be the encrypted Fusion Tables table id. Set the `abbr` property of `<namespaceMapping>` to your CITE namespace abbreviation. URNs in the collection will be of the form `urn:cite:{namespaceMapping.abbr}:{citeCollection.name}`.
+* Create a Fusion Table with columns for the CITE properties you wish to have in your CITE collection. All columns should have type "Text", except any `datetime`/`timestamp` properties which can have type "Date/Time".
+* Copy or edit `src/capabilities/testedit-capabilities.xml` to reflect your CITE collection(s) and properties. The `class` attribute of a `<citeCollection>` should be the encrypted Fusion Tables table id. Set the `abbr` property of `<namespaceMapping>` to your CITE namespace abbreviation. URNs in the collection will be of the form `urn:cite:{namespaceMapping/@abbr}:{citeCollection/@name}`. The CITE Collection Editor has special handling for a few CITE properties:
+  * the `citeProperty` with `@type="citeurn"` and `@name` corresponding to `citeCollection/@canonicalId` will be an automatically generated next-available URN (or URN version)
+  * a `citeProperty` with `@type="authuser"` will be automatically populated from a user's Google authentication credentials
+  * a `citeProperty` with `@type="timestamp"` will be automatically populated with the current datetime
+  * a `citeProperty` with `@type="markdown"` will get Markdown editing/preview via [PageDown](https://code.google.com/p/pagedown/)
 * Copy `gradle.properties-dist` to `gradle.properties`, adding your API key and relative capabilities URL
 
         capabilities_url=capabilities/your-testedit-capabilities.xml
