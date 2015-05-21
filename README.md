@@ -28,6 +28,14 @@ Configuration
 
 * Run `gradle build`
 
-
 ## Requirements
 - gradle 1.1 required to compile coffeescript to javascript
+
+## Authentication Models
+
+There are a few ways the CITE Collection Editor can be set up to allow editing of Fusion Tables:
+
+* Use Fusion Tables permissions. This is the default, if you're just running the CITE Collection Editor without a [https://github.com/ryanfb/cite-collection-editor/](CITE Collection Manager) proxy. Anyone who wants to edit the collection must be added through the Fusion Tables UI via `File->Share` with edit permissions.
+* Use the [https://github.com/ryanfb/cite-collection-editor/](CITE Collection Manager) proxy. This allows anyone with a Google account to add to the collection (via proxied authentication). Users can be managed via the `Blocked` column of the Collection Manager's authentication table. You could also change the default of the `Blocked` column in the Collection Manager to `true` for new users, to require an administrator to whitelist new user requests first before they can add contributions, though I have not tried using this authentication model.
+
+It used to be possible to set permissions for a Fusion Table to "anyone with the link can edit", which would allow you to live on the edge and allow contributions without the need for a proxy, but this has apparently been deprecated by Google.
