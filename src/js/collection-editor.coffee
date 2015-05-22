@@ -225,6 +225,7 @@ load_collection_form = ->
           history.replaceState(null,'',window.location.href.replace("#{location.hash}","#{location.hash}&#{$(child).attr('id')}=#{localStorage["#{collection}:#{$(child).attr('id')}"]}"))
         else
           $(child).val(localStorage["#{collection}:#{$(child).attr('id')}"])
+  autosize.update($('textarea'))
 
 # populate collection form values from a given URN
 load_collection_form_from_urn = (loaded_urn) ->
