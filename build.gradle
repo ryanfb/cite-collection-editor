@@ -8,7 +8,9 @@ version = '0.1.0'
 
 repositories {
   mavenCentral()
-  mavenRepo name: "Gradle", url: "http://repo.gradle.org/gradle/repo"
+  maven {
+    url "https://repo.gradle.org/gradle/javascript-public"
+  }
   maven {
     url "http://beta.hpcc.uh.edu/nexus/content/repositories/releases"
   }
