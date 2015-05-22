@@ -244,6 +244,7 @@ load_collection_form_from_urn = (loaded_urn) ->
               pagedown_editors[header].refreshPreview()
           else
             $("##{header}").val(data['rows'][0][i])
+      autosize.update($('textarea'))
 
 # remove form values from localStorage and reset the form
 clear_collection_form = ->
@@ -301,6 +302,9 @@ build_collection_form = (collection) ->
   $('.container').append form
   check_table_access $(collection).attr('class')
 
+  # set textareas to autosize
+  autosize($('textarea'))
+
   # update various inputs after we've actually put the form in the DOM
   load_collection_form()
   set_author_name()
@@ -322,9 +326,6 @@ build_collection_form = (collection) ->
         clippy "wmd-input-#{$(property).attr('name')}"
       else
         clippy $(property).attr('name')
-
-  # set textareas to autosize
-  $('textarea').autosize()
 
   # set an OAuth expiration callback
   if get_cookie 'access_token_expires_at'
