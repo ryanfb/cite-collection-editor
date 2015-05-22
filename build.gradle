@@ -67,17 +67,11 @@ task copy(type: Copy) {
   }
 }
 
-task build {
-  dependsOn compileCoffee, filter, copy
-  description = "Assemble website from source"
-}
-
-
-task buildZip(type: Zip, dependsOn: build) {
+task buildZip(type: Zip) {
+    dependsOn compileCoffee, filter, copy
     from "${buildDir.path}/cce"
     description = 'Builds zip file of java/groovy docs'
 }
-
 
 artifacts {
     archives buildZip
