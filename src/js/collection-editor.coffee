@@ -333,7 +333,7 @@ build_collection_form = (collection) ->
     authorization_expires_in = parseInt(get_cookie('access_token_expires_at')) - Date.now()
     console.log "Disabling submit in #{authorization_expires_in}ms"
     setTimeout ->
-      disable_submit()
+      oauth_redirect()
     , authorization_expires_in
 
 # set the author name using Google profile information
@@ -453,12 +453,11 @@ push_selected_collection = ->
     window.location.href + new_hash
   history.pushState(null,$(selected).text(),new_url)
 
-# disable the submit button with an informative dialogue if the cookie expires while editing
-disable_submit = ->
+# disable submit, save form, and redirect to oauth when cookie expires
+oauth_redirect = ->
   $('#submit_button').prop('disabled',true)
-  $('#submit_button').before $('<div>').attr('class','alert alert-warning').attr('id','oauth_expiration_warning').append('Your Google Fusion Tables authorization has expired. ')
-  $('#oauth_expiration_warning').append $('<a>').attr('href',google_oauth_url()).append('Click here to save your work and re-authorize.').attr('onclick','save_collection_form()')
-  $('#oauth_expiration_warning').append(' You will be able to submit your work upon return.')
+  save_collection_form()
+  window.location.assign(google_oauth_url())
 
 build_collection_editor_from_capabilities = (capabilities_url) ->
   $.ajax capabilities_url,
