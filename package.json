@@ -1,8 +1,9 @@
 {
   "name": "cite-collection-editor",
   "version": "0.1.0",
+  "author": "Ryan Baumann",
   "license": "MIT",
-  "description": "Test",
+  "description": "CITE Collection Editor",
   "main": "src/test.html",
   "dependencies": {
     "grunt": "^0.4"
@@ -20,7 +21,6 @@
     "type": "git",
     "url": "git://github.com/stebru/travis-qunit-test.git"
   },
-  "author": "Stefan Bruvik",
   "scripts": {
     "test": "grunt test --verbose"
   }
