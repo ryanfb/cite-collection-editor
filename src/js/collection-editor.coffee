@@ -6,7 +6,7 @@ default_cite_collection_editor_config =
 
 google_oauth_parameters_for_fusion_tables =
   response_type: 'token'
-  redirect_uri: window.location.href.replace("#{location.hash}",'')
+  redirect_uri: window.location.href.replace("#{location.hash}",'').replace(/#$/,'')
   scope: 'https://www.googleapis.com/auth/fusiontables https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email'
   approval_prompt: 'auto'
 
@@ -22,13 +22,16 @@ cite_urn = (namespace, collection, row, prefix = '', version) ->
 
 pagedown_editors = {}
 
+enable_submit = ->
+  $('#submit_button').prop('disabled',false)
+
 disable_collection_form = ->
   $('#collection_form').children().prop('disabled',true)
   $('.wmd-input').prop('disabled',true)
   $('.btn').prop('disabled',true)
 
 build_input_for_valuelist = (valuelist) ->
-  select = $('<select>').attr('style','display:block')
+  select = $('<select>').attr('style','display:block').change(enable_submit)
   values = $(valuelist).find('value')
   select.append $('<option>').append($(value).text()) for value in values
   return select
@@ -43,7 +46,7 @@ build_input_for_property = (property) ->
       pagedown_suffix = $('<input>').attr('type','hidden').attr('class','pagedown_suffix').attr('value',$(property).attr('name'))
       pagedown_panel = $('<div>').attr('class','wmd-panel')
       pagedown_panel.append $('<div>').attr('id',"wmd-button-bar-#{$(property).attr('name')}")
-      pagedown_panel.append $('<textarea>').attr('class','wmd-input').attr('id',"wmd-input-#{$(property).attr('name')}")
+      pagedown_panel.append $('<textarea>').attr('class','wmd-input').attr('id',"wmd-input-#{$(property).attr('name')}").change(enable_submit)
       pagedown_preview = $('<div>').attr('class','wmd-panel wmd-preview').attr('id',"wmd-preview-#{$(property).attr('name')}")
       pagedown_container.append pagedown_suffix
       pagedown_container.append pagedown_panel
@@ -54,7 +57,7 @@ build_input_for_property = (property) ->
       if $(property).find('valueList').length > 0
         build_input_for_valuelist $(property).find('valueList')[0]
       else
-        $('<textarea>').attr('style','width:100%').attr('rows','1')
+        $('<textarea>').attr('style','width:100%').attr('rows','1').change(enable_submit)
     when 'datetime', 'authuser'
       $('<input>').attr('style','width:100%;display:block')
     when 'citeurn', 'citeimg', 'ctsurn'
@@ -62,7 +65,7 @@ build_input_for_property = (property) ->
       if $(property).attr('name') == $(property).parent().attr('canonicalId')
         $('<input>').attr('style','width:100%').attr('data-urn','true').prop('disabled',true)
       else
-        $('<input>').attr('style','width:100%')
+        $('<input>').attr('style','width:100%').change(enable_submit)
     when 'timestamp'
       $('<input>').attr('style','width:50%').attr('type','timestamp').prop('disabled',true).attr('style','display:block')
     else
@@ -283,7 +286,7 @@ build_collection_form = (collection) ->
   properties = $(collection).find('citeProperty')
   add_property_to_form(property,form) for property in properties
 
-  submit_button = $('<input>').attr('type','button').attr('value','Submit').attr('class','btn btn-primary').attr('id','submit_button')
+  submit_button = $('<input>').attr('type','button').attr('value','Submit').attr('class','btn btn-primary').attr('id','submit_button').prop('disabled',true)
   submit_button.bind 'click', (event) =>
     submit_collection_form()
   save_button = $('<input>').attr('type','button').attr('value','Save').attr('class','btn')
