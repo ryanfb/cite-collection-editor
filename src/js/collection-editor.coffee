@@ -1,4 +1,4 @@
-FUSION_TABLES_URI = 'https://www.googleapis.com/fusiontables/v1'
+FUSION_TABLES_URI = 'https://www.googleapis.com/fusiontables/v2'
 
 default_cite_collection_editor_config =
   google_client_id: '891199912324.apps.googleusercontent.com'
@@ -87,10 +87,12 @@ fusion_tables_query = (query, callback) ->
   console.log "Query: #{query}"
   switch query.split(' ')[0]
     when 'INSERT'
-      $.ajax "#{FUSION_TABLES_URI}/query?access_token=#{get_cookie 'access_token'}",
+      $.ajax "#{FUSION_TABLES_URI}/query",
         type: 'POST'
         dataType: 'json'
         crossDomain: true
+        beforeSend: (xhr) ->
+          xhr.setRequestHeader('Authorization',"Bearer #{get_cookie 'access_token'}")
         data:
           sql: query
         error: (jqXHR, textStatus, errorThrown) ->
@@ -105,11 +107,13 @@ fusion_tables_query = (query, callback) ->
           if callback?
             callback(data)
     when 'SELECT'
-      $.ajax "#{FUSION_TABLES_URI}/query?sql=#{query}&access_token=#{get_cookie 'access_token'}",
+      $.ajax "#{FUSION_TABLES_URI}/query?sql=#{query}",
         type: 'GET'
         cache: false
         dataType: 'json'
         crossDomain: true
+        beforeSend: (xhr) ->
+          xhr.setRequestHeader('Authorization',"Bearer #{get_cookie 'access_token'}")
         error: (jqXHR, textStatus, errorThrown) ->
           console.log "AJAX Error: #{textStatus}"
         success: (data) ->
@@ -262,10 +266,12 @@ clear_collection_form = ->
 check_table_access = (table_id, callback) ->
   # test table access
   if get_cookie 'access_token'
-    $.ajax "#{FUSION_TABLES_URI}/tables/#{table_id}?access_token=#{get_cookie 'access_token'}",
+    $.ajax "#{FUSION_TABLES_URI}/tables/#{table_id}",
       type: 'GET'
       dataType: 'json'
       crossDomain: true
+      beforeSend: (xhr) ->
+        xhr.setRequestHeader('Authorization',"Bearer #{get_cookie 'access_token'}")
       error: (jqXHR, textStatus, errorThrown) ->
         console.log "AJAX Error: #{textStatus}"
         $('.container > h1').after $('<div>').attr('class','alert alert-error').attr('id','collection_access_error').append('You do not have permission to access this collection.')
