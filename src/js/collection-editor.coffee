@@ -427,9 +427,10 @@ set_access_token_cookie = (params, callback) ->
       success: (data) ->
         set_cookie('access_token',params['access_token'],params['expires_in'])
         set_cookie('access_token_expires_at',expires_in_to_date(params['expires_in']).getTime(),params['expires_in'])
-        $('#collection_select').change()
       complete: (jqXHR, textStatus) ->
         callback() if callback?
+  else
+    callback() if callback?
 
 # construct a clippy element to replace the given placeholder id
 clippy = (id) ->
@@ -524,6 +525,5 @@ $(document).ready ->
   unless $('#qunit').length
     cite_collection_editor_config = merge_config_parameters()
     
-    set_access_token_cookie filter_url_params(parse_query_string())
- 
-    build_collection_editor_from_capabilities cite_collection_editor_config['capabilities_url']
+    set_access_token_cookie filter_url_params(parse_query_string()), =>
+      build_collection_editor_from_capabilities cite_collection_editor_config['capabilities_url']
