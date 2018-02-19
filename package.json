@@ -6,16 +6,16 @@
   "description": "CITE Collection Editor",
   "main": "src/test.html",
   "dependencies": {
-    "grunt": "^0.4"
+    "grunt": "^1.0"
   },
   "devDependencies": {
-    "grunt-contrib-connect": "^0.8",
-    "grunt-contrib-qunit": "^0.5",
-    "jquery": "^2.1.1",
-    "load-grunt-config": "^0.10",
-    "load-grunt-tasks": "^0.6",
-    "qunitjs": "^1.14.0",
-    "time-grunt": "^0.3"
+    "grunt-contrib-connect": "^1.0",
+    "grunt-contrib-qunit": "^2.0",
+    "jquery": "^3.3.1",
+    "load-grunt-config": "^0.19",
+    "load-grunt-tasks": "^3.5",
+    "qunit": "^2.4.1",
+    "time-grunt": "^1.4"
   },
   "repository": {
     "type": "git",
@@ -24,4 +24,4 @@
   "scripts": {
     "test": "grunt test --verbose"
   }
-} 
+}
